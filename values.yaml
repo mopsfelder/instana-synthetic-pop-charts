@@ -5,12 +5,13 @@
 # synthetic-pop-controller
 controller:
   image:
-    # for production: "containers.instana.io/instana/release/synthetic/synthetic-pop-controller"
-    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-pop-controller"
+    name: "containers.instana.io/instana/release/synthetic/synthetic-pop-controller"
+    # tag is the tag name of the container image.
     tag: "latest"
+    # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
-    # for production : instana-io
-    pullSecret: "gcr-io"
+    # image.pullSecret specifies the secret to pull the image.
+    pullSecret: "instana-io"
 
   # Required, controller.location is the PoP configuration,  format: "label; displayLabel; country; city; latitude; longitude; description"
   # label is part of the location identifier, it can not be updated after PoP is deployment, but displayLabel can be changed freely
@@ -60,13 +61,13 @@ controller:
 # synthetic-pop-http playback engine
 http:
   image:
-    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-http"
-    # tag is the tag name of the container image;
+    name: "containers.instana.io/instana/release/synthetic/synthetic-playback-http"
+    # tag is the tag name of the container image.
     tag: "latest"
-    # image.pullPolicy specifies when to pull the image container.
+    # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
-    # for production : instana-io
-    pullSecret: "gcr-io"
+    # image.pullSecret specifies the secret to pull the image.
+    pullSecret: "instana-io"
 
   # http.enabled specifies whether to deploy the synthetic-pop-http or not
   enabled: true
@@ -92,13 +93,13 @@ http:
 # synthetic-pop-javascript playback engine
 javascript:
   image:
-    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-javascript"
-    # image.tag is the tag name of the container image;
+    name: "containers.instana.io/instana/release/synthetic/synthetic-playback-javascript"
+    # image.tag is the tag name of the container image.
     tag: "latest"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
-    # for production : instana-io
-    pullSecret: "gcr-io"
+    # image.pullSecret specifies the secret to pull the image.
+    pullSecret: "instana-io"
 
   # javascript.enabled specifies whether to deploy the synthetic-pop-javascript or not
   enabled: true
@@ -123,13 +124,13 @@ javascript:
 # synthetic-pop-browserscript  playback engine
 browserscript:
   image:
-    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-browserscript"
+    name: "containers.instana.io/instana/release/synthetic/synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
     tag: "latest"
-    # image.pullPolicy specifies when to pull the image container.
+    # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
-    # for production : instana-io
-    pullSecret: "gcr-io"
+    # image.pullSecret specifies the secret to pull the image.
+    pullSecret: "instana-io"
 
   # browserscript.enabled specifies whether to deploy the synthetic-pop-browserscript or not
   # browserscript playback engine is not supported in current release, its value can only be false currently
@@ -155,13 +156,13 @@ browserscript:
 # synthetic-pop-ism playback engine
 ism:
   image:
-    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-ism"
+    name: "containers.instana.io/instana/release/synthetic/synthetic-playback-ism"
     # image.tag is the tag name of the container image;
     tag: "latest"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
     # for production : instana-io
-    pullSecret: "gcr-io"
+    pullSecret: "instana-io"
 
   # ism.enabled specifies whether to deploy the synthetic-pop-ism or not
   # ism playback engine is not supported in current release, its value can only be false currently
@@ -187,13 +188,13 @@ ism:
 # redis
 redis:
   image:
-    name: "gcr.io/k8s-brewery/instana/synthetic/redis"
+    name: "containers.instana.io/instana/release/synthetic/redis"
     tag: "latest"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
-    # for production : instana-io
-    pullSecret: "gcr-io"
-  # if tls.enabled is false, the password must be provided for Redis server authentication
+    # image.pullSecret specifies the secret to pull the image.
+    pullSecret: "instana-io"
+  # Required, the password used to connect to Redis server
   password: ""
   tls:
     # To enable redis TLS or not
