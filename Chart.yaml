@@ -1,3 +1,9 @@
+annotations:
+  artifacthub.io/links: |
+    - name: Instana website
+      url: https://www.instana.com
+    - name: Instana Synthetic PoP Helm charts
+      url: https://github.com/instana/synthetic-pop-charts
 apiVersion: v1
 appVersion: 1.242.0
 description: Helm chart to install Instana Synthetic PoP (Point of Presence)
