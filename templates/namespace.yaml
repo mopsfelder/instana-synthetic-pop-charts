@@ -1,0 +1,13 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+{{- if .Values.templating }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Release.Namespace }}
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+{{- end }}

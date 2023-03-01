@@ -1,0 +1,135 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+{{- if .Values.ism.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: synthetic-pop-ism-playback-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: ism
+    component: synthetic-playback-ism
+spec:
+  selector:
+    matchLabels:
+      {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: ism
+      component: synthetic-playback-ism
+  replicas: {{ .Values.ism.replicas | default 1 }}
+  template:
+    metadata:
+      labels:
+        {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/name: ism
+        component: synthetic-playback-ism
+        role: playbackengine
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+      imagePullSecrets:
+      - name: {{ .Values.ism.image.pullSecret }}
+      serviceAccountName: {{ template "synthetic-pop.ismServiceAccountName" . }}
+      {{- include "synthetic-pop.seccomp" . | nindent 6 }}
+      containers:
+      - name: synthetic-playback-ism
+        image: {{ include "image" .Values.ism.image | quote}}
+        imagePullPolicy: {{ .Values.ism.image.pullPolicy }}
+        securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+        resources:
+          limits:
+            cpu: {{ .Values.ism.resources.limits.cpu }}
+            memory: {{ .Values.ism.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.ism.resources.requests.cpu }}
+            memory: {{ .Values.ism.resources.requests.memory }}
+        livenessProbe:
+         httpGet:
+            path: 1.0/synthetics/ism/status
+            port: 8080
+         initialDelaySeconds: 30
+         timeoutSeconds: 15
+        readinessProbe:
+         httpGet:
+            path: 1.0/synthetics/ism/readiness
+            port: 8080
+         initialDelaySeconds: 30
+         timeoutSeconds: 15
+        ports:
+         - containerPort: 8080
+           name: web
+           protocol: TCP
+        volumeMounts:
+          - mountPath: /opt/ibm/microservice/ism-playback/logs
+            name: logs
+          {{- if .Values.redis.tls.enabled }}
+          - name: tls
+            mountPath: {{ include "tls.certPath" . | quote }}
+            readOnly: true
+          {{- else }}
+          - name: redis
+            mountPath: {{ include "redis.passPath" . | quote }}
+            readOnly: true
+          {{- end }}
+        env:
+        # REDIS URL: For connecting to REDIS server.
+        # Both parameters should match the values in the synthetic PoP controller.
+        # ConfigurationQueue is the redis queue that test config is pushed onto.
+        - name: ISM_REDIS_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=ISMPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: TLS_ENABLED
+          value: {{ .Values.redis.tls.enabled | default false | quote }}
+        {{- if .Values.redis.tls.enabled }}
+        - name: CERTIFICATE_PATH
+          value: {{ include "tls.certPath" . | quote }}
+        {{- else }}
+        - name: REDIS_PASSWORD_PATH
+          value: {{ include "redis.passPath" . | quote }}
+        {{- end }}
+        - name: REDIS_PASSWORD
+          value: ""
+        - name: ENABLEREDIS
+          value: "on"
+        # length of sandbox pool
+        - name: SANDBOX_LENGTH
+          value: "3"
+        # timeout for DNSAction, default is 10 seconds
+        - name: DNSACTION_TIMEOUT
+          value: "10s"
+        # concurrency request number, default is 500
+        - name: CONCURRENCY_REQUESTS
+          value: "500"
+        # Loglevel: can be error, warning, info, finest , all
+        - name: LOGLEVEL
+          value: {{ .Values.ism.traceLevel | default "info"	| quote }}
+      volumes:
+      - name: logs
+        emptyDir: {}
+      {{- if .Values.redis.tls.enabled }}
+      - name: tls
+        secret:
+          secretName: {{ .Values.redis.tls.secretName | quote }}
+          optional: false
+      {{- else }}
+      - name: redis
+        secret:
+          secretName: {{ include "redis.secretName" . | quote }}
+          optional: false
+      {{- end }}
+{{- end }}

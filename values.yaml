@@ -1,0 +1,249 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+# synthetic-pop-controller
+controller:
+  image:
+    # for production: "containers.instana.io/instana/release/synthetic/synthetic-pop-controller"
+    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-pop-controller"
+    tag: "latest"
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+
+  # Required, controller.location is the PoP configuration,  format: "label; displayLabel; country; city; latitude; longitude; description"
+  # label is part of the location identifier, it can not be updated after PoP is deployment, but displayLabel can be changed freely
+  # Example: "MyPoP;My PoP;China;Beijing;39.54;116.23;This is a testing PoP"
+  location: ""
+
+  # Required, controller.instanaKey is Instana agent key, the key can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
+  # If there are multiple backends and each backend requires different key, use semicolon to separate multiple keys, e.g. "anAgentKey;anotherAgentKey"
+  instanaKey: ""
+
+  # Required, controller.instanaSyntheticEndpoint is the Instana backend URL, e.g. "https://synthetics-pink-saas.instana.rocks"
+  # This value can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
+  # If there are multiple backends, use semicolon to separate, e.g. "https://synthetics-pink-saas.instana.rocks;https://synthetics-blue-saas.instana.rocks"
+  instanaSyntheticEndpoint: ""
+
+  # controller.capabilities defines the playback capabilities for this PoP
+  # full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction;browserType=firefox,chrome
+  # current release only supports syntheticType=HTTPAction,HTTPScript
+  capabilities: "syntheticType=HTTPAction,HTTPScript;browserType=firefox,chrome"
+
+  # Optionally, controller.clusterName needs to be set with the name of the Kubernetes cluster that is to be displayed in Instana.
+  # Set this value when Instana agent is installed to monitor this PoP.
+  clusterName: ""
+
+  # custom tags for this location, format is "tag1=value1;tag2=value2"
+  customProperties: ""
+
+  # The thread pool size for publishing result messages into Ingress service in parallel, default is 5;
+  # The value is recommended to set with equal or greater than 5, users can increase this value to accelerate the publishing for high workload, e.g, 10 or 20
+  publishAARThreadPoolSize: 5
+
+  # controller.traceLevel is the tracing level, value can be TRACE, DEBUG, INFO, WARN and ERROR
+  # can also use ALL to enable all trace.
+  traceLevel: "INFO"
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 1 memory: "500Mi", requests cpu: 200m memory: "300Mi"
+  resources:
+    limits:
+      cpu: 1
+      memory: 500Mi
+    requests:
+      cpu: 200m
+      memory: 300Mi
+
+# synthetic-pop-http playback engine
+http:
+  image:
+    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-http"
+    # tag is the tag name of the container image;
+    tag: "latest"
+    # image.pullPolicy specifies when to pull the image container.
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+
+  # http.enabled specifies whether to deploy the synthetic-pop-http or not
+  enabled: true
+
+  # http.replicas specifies the synthetic-pop-http pod instance number
+  replicas: 1
+
+  # http.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK|OFF
+  traceLevel: "INFO"
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 1 memory: "300Mi", requests cpu: 200m memory: "200Mi"
+  resources:
+    limits:
+      cpu: 1
+      memory: 300Mi
+    requests:
+      cpu: 200m
+      memory: 200Mi
+
+
+# synthetic-pop-javascript playback engine
+javascript:
+  image:
+    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-javascript"
+    # image.tag is the tag name of the container image;
+    tag: "latest"
+    # image.pullPolicy specifies when to pull the image container.
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+
+  # javascript.enabled specifies whether to deploy the synthetic-pop-javascript or not
+  enabled: true
+
+  # javascript.replicas specifies the synthetic-pop-javascript pod instance number
+  replicas: 1
+
+  # javascript.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK|OFF
+  traceLevel: "INFO"
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 1 memory: "500Mi", requests cpu: 200m memory: "400Mi"
+  resources:
+    limits:
+       cpu: 1
+       memory: "500Mi"
+    requests:
+       cpu: 200m
+       memory: "400Mi"
+
+# synthetic-pop-browserscript  playback engine
+browserscript:
+  image:
+    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-browserscript"
+    # image.tag is the tag name of the container image;
+    tag: "latest"
+    # image.pullPolicy specifies when to pull the image container.
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+
+  # browserscript.enabled specifies whether to deploy the synthetic-pop-browserscript or not
+  # browserscript playback engine is not supported in current release, its value can only be false currently
+  enabled: false
+
+  # browserscript.replicas specifies the synthetic-pop-browserscript pod instance number
+  replicas: 1
+
+  # browserscript.traceLevel is the tracing level, value can be error | warning | info | finest | all
+  traceLevel: "info"
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 4 memory: "3Gi", requests cpu: 2 memory: "2Gi"
+  resources:
+    limits:
+       cpu: 4
+       memory: "3Gi"
+    requests:
+       cpu: 2
+       memory: "2Gi"
+
+# synthetic-pop-ism playback engine
+ism:
+  image:
+    name: "gcr.io/k8s-brewery/instana/synthetic/synthetic-playback-ism"
+    # image.tag is the tag name of the container image;
+    tag: "latest"
+    # image.pullPolicy specifies when to pull the image container.
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+
+  # ism.enabled specifies whether to deploy the synthetic-pop-ism or not
+  # ism playback engine is not supported in current release, its value can only be false currently
+  enabled: false
+
+  # ism.replicas specifies the synthetic-pop-ism pod instance number
+  replicas: 1
+
+  # ism.traceLevel is the tracing level, value can be error | warning | info | finest | all
+  traceLevel: "info"
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 1 memory: "300Mi", requests cpu: 100m memory: "200Mi"
+  resources:
+    limits:
+      cpu: 1
+      memory: "300Mi"
+    requests:
+      cpu: 100m
+      memory: "200Mi"
+
+# redis
+redis:
+  image:
+    name: "gcr.io/k8s-brewery/instana/synthetic/redis"
+    tag: "latest"
+    # image.pullPolicy specifies when to pull the image container.
+    pullPolicy: "Always"
+    # for production : instana-io
+    pullSecret: "gcr-io"
+  # if tls.enabled is false, the password must be provided for Redis server authentication
+  password: ""
+  tls:
+    # To enable redis TLS or not
+    enabled: false
+    # If tls.enabled is true, a secret of type kubernetes.io/tls must be specified.
+    # secretName is the name of the secret that has the relevant files including tls.key, tls.crt and ca.crt.
+    secretName: ""
+
+  ## Default Container resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## Default limits cpu: 1 memory: "1Gi", requests cpu: 1 memory: "1Gi"
+  resources:
+    limits:
+      cpu: 1
+      memory: "1Gi"
+    requests:
+      cpu: 1
+      memory: "1Gi"
+
+#proxy specifies the proxy configuration for Synthetic PoP
+proxy:
+  # proxy.popProxyServer: the proxy server for synthetic PoP to connect the backend server, Format:  "ipaddress:port"
+  popProxyServer: ""
+
+serviceAccount:
+  name: synthetic-pop-serviceaccount
+  create: true
+
+# Apply RuntimeDefault seccomp profile, recommend changing to true for ocp > = 4.11, k8s  >= 1.19
+seccompDefault: false
+
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+# Apply Network Policy to playback engines
+# See more about network policy in https://kubernetes.io/docs/concepts/services-networking/network-policies/
+playbackEngineNetworkPolicy:
+  enabled: false
+  egress:
+  - to:
+    - ipBlock:
+        # allow access to ip range: 1.0.0.0-254.255.255.255
+        cidr: 0.0.0.0/0
+        # block access to ip range: 10.0.0.0-10.0.0.255
+        # block access to metadata IP address for all cloud providers: 169.254.169.254
+        except:
+          - 10.0.0.0/24
+          - 169.254.169.254/32
+
+# Required, Secrets used to pull images
+# This value can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
+downloadKey: ""

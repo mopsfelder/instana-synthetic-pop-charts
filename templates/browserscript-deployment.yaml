@@ -1,0 +1,138 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+{{- if .Values.browserscript.enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: synthetic-pop-browserscript-playback-engine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: browserscript
+    component: synthetic-playback-browserscript
+spec:
+  selector:
+    matchLabels:
+      {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: browserscript
+      component: synthetic-playback-browserscript
+  replicas: {{ .Values.browserscript.replicas | default 1 }}
+  template:
+    metadata:
+      annotations:
+      labels:
+        {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/name: browserscript
+        component: synthetic-playback-browserscript
+        role: playbackengine
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.browserscript.image.pullSecret }}
+      serviceAccountName: {{ template "synthetic-pop.browserServiceAccountName" . }}
+      {{- include "synthetic-pop.seccomp" . | nindent 6 }}
+      containers:
+      - name: synthetic-playback-browserscript
+        image: {{ include "image" .Values.browserscript.image | quote}}
+        imagePullPolicy: {{ .Values.browserscript.image.pullPolicy }}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          limits:
+            cpu: {{ .Values.browserscript.resources.limits.cpu }}
+            memory: {{ .Values.browserscript.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.browserscript.resources.requests.cpu }}
+            memory: {{ .Values.browserscript.resources.requests.memory }}
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /opt/app-root
+            name: app-root
+          - mountPath: /opt/ibm/apm/playback/browserscript/user-script
+            name: user-script
+          - mountPath: /opt/ibm/apm/playback/browserscript/logs
+            name: browserscript-logs
+          {{- if .Values.redis.tls.enabled }}
+          - name: tls
+            mountPath: {{ include "tls.certPath" . | quote }}
+            readOnly: true
+          {{- else }}
+          - name: redis
+            mountPath: {{ include "redis.passPath" . | quote }}
+            readOnly: true
+          {{- end }}
+        livenessProbe:
+          httpGet:
+            path: browserscript/0.9/liveness
+            port: 8080
+          initialDelaySeconds: 180
+          timeoutSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: browserscript/0.9/liveness  ##need readiness probe
+            port: 8080
+          initialDelaySeconds: 60
+          timeoutSeconds: 15
+        ports:
+          - containerPort: 8080
+        env:
+        - name: BROWSERSCRIPT_REDIS_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=BrowserScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: TLS_ENABLED
+          value: {{ .Values.redis.tls.enabled | default false | quote }}
+        {{- if .Values.redis.tls.enabled }}
+        - name: CERTIFICATE_PATH
+          value: {{ include "tls.certPath" . | quote }}
+        {{- else }}
+        - name: REDIS_PASSWORD_PATH
+          value: {{ include "redis.passPath" . | quote }}
+        {{- end }}
+        - name: REDIS_PASSWORD
+          value: ""
+        - name: MAX_AAR_SIZE_MB
+          value: "10"
+        - name: TRACE_LEVEL
+          value: {{ .Values.browserscript.traceLevel | default "INFO" }}
+        - name: BROWSERSCRIPT_TIMEOUT
+          value: "5"
+        - name: BROWSERSCRIPT_MAX_TASKPOOL_SIZE
+          value: "10"
+        # enable/disable headless browser mode
+        - name: ENABLE_HEADLESS_BROWSER
+          value: "false"
+        # enable/disable HAR collection
+        - name: ENABLE_HAR_COLLECTION
+          value: "yes"
+      volumes: 
+        - name: dshm
+          emptyDir: {}
+        - name: user-script
+          emptyDir: {} 
+        - name: tmp
+          emptyDir: {} 
+        - name: browserscript-logs
+          emptyDir: {}
+        - name: app-root
+          emptyDir: {}
+        {{- if .Values.redis.tls.enabled }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.redis.tls.secretName | quote }}
+            optional: false
+        {{- else }}
+        - name: redis
+          secret:
+            secretName: {{ template "redis.secretName" . }}
+            optional: false
+        {{- end }}
+{{- end }}

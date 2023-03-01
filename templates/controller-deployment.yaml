@@ -1,0 +1,162 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: synthetic-pop-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: controller
+    component: synthetic-pop-controller
+spec:
+  selector:
+    matchLabels:
+      {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: controller
+      component: synthetic-pop-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/name: controller
+        component: synthetic-pop-controller
+    spec:
+      serviceAccountName: {{ template "synthetic-pop.controllerServiceAccountName" . }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+      imagePullSecrets:
+        - name: {{ .Values.controller.image.pullSecret }}
+      {{- include "synthetic-pop.seccomp" . | nindent 6 }}
+      containers:
+      - name: synthetic-pop-controller
+        image: {{ include "image" .Values.controller.image | quote}}
+        imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          limits:
+            cpu: {{ .Values.controller.resources.limits.cpu }}
+            memory: {{ .Values.controller.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.controller.resources.requests.cpu }}
+            memory: {{ .Values.controller.resources.requests.memory }}
+        volumeMounts:
+          - mountPath: /opt/ibm/apm/pop/controller/logs
+            name: logs
+          - mountPath: /tmp
+            name: tmp
+          - name: instana-key
+            mountPath: {{ template "instana.keyPath" . }}
+            readOnly: true
+          {{- if .Values.redis.tls.enabled }}
+          - name: tls
+            mountPath: {{ include "tls.certPath" . | quote }}
+            readOnly: true
+          {{- else }}
+          - name: redis
+            mountPath: {{ include "redis.passPath" . | quote }}
+            readOnly: true
+          {{- end }}
+        livenessProbe:
+          exec:
+            command:
+            - /opt/ibm/apm/pop/controller/synthetic-pop-controller.sh
+            - health
+          initialDelaySeconds: 240
+          timeoutSeconds: 15
+        readinessProbe:
+          exec:
+            command:
+            - cat
+            - /opt/ibm/apm/pop/controller/logs/pop.readiness
+          initialDelaySeconds: 60
+          periodSeconds: 10          
+        env:
+        - name: LOCATION
+          value: {{ .Values.controller.location | quote }}
+        - name: PLAYBACK_CAPABILITIES
+          value: {{ .Values.controller.capabilities | quote }}
+        - name: CUSTOM_PROPERTIES
+          value: {{ .Values.controller.customProperties | quote }}
+        - name: HTTPACTION_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: HTTPSCRIPT_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: WEBPAGEACTION_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=BrowserScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: BROWSERSCRIPT_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=BrowserScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: WEBPAGESCRIPT_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=BrowserScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: DNSACTION_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=ISMPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: TLS_ENABLED
+          value: {{ .Values.redis.tls.enabled | default false | quote }}
+        {{- if .Values.redis.tls.enabled }}
+        - name: CERTIFICATE_PATH
+          value: {{ include "tls.certPath" . | quote }}
+        {{- else }}
+        - name: REDIS_PASSWORD_PATH
+          value: {{ include "redis.passPath" . | quote }}
+        {{- end }}
+        # reserve this variable for container not supporting volume mount
+        - name: REDIS_PASSWORD
+          value: ""
+        # reserve this variable for container not supporting volume mount
+        - name: IRA_API_TENANT_ID
+          value: ""
+        - name: INSTANA_KEY_PATH
+          value: {{ include "instana.keyPath" . | quote }}
+        - name: TRACE_LEVEL
+          value: {{ .Values.controller.traceLevel | default "INFO" | quote }}
+        - name: JVM_ARGS
+          value: "-Xms128M -Xmx128M -Xtune:virtualized"
+        - name: INSTANA_ENDPOINT_URL
+          value: {{ .Values.controller.instanaSyntheticEndpoint | quote }}
+        # The thread pool size for publishing result messages into Ingress service in parallel, default is 5
+        - name: PUBLISHAAR_THREAD_POOL_SIZE
+          value: {{ .Values.controller.publishAARThreadPoolSize | quote }}
+        # PoP proxy server for communicating with instana backend server
+        - name: POP_PROXY_SERVER
+          value: {{ .Values.proxy.popProxyServer | default "" | quote }}
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        - name: CLUSTERNAME
+          value: {{ .Values.controller.clusterName | quote }}
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
+      {{- if .Values.redis.tls.enabled }}
+      - name: tls
+        secret:
+          secretName: {{ .Values.redis.tls.secretName | quote }}
+          optional: false
+      {{- else }}
+      - name: redis
+        secret:
+          secretName: {{ template "redis.secretName" . }}
+          optional: false
+      {{- end }}
+      - name: instana-key
+        secret:
+          secretName: {{ template "instanaKey.secretName" . }}
+          optional: false

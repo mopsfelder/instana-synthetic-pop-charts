@@ -1,0 +1,70 @@
+---
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+
+#To use network policies, you must be using a networking solution which supports NetworkPolicy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: synthetic-pop-controller-network-policy
+  namespace: {{ .Release.Namespace }}
+#deny all ingress traffic
+spec:
+  podSelector:
+    matchLabels:
+      component: synthetic-pop-controller
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: synthetic-redis-egress-network-policy
+  namespace: {{ .Release.Namespace }}
+#deny all egress traffic
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: synthetic-redis-ingress-network-policy
+  namespace: {{ .Release.Namespace }}
+#only allow ingress from pop controller and playback engines
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            component: synthetic-pop-controller
+      - podSelector:
+          matchLabels:
+            role: playbackengine
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: synthetic-playbackengine-network-policy
+  namespace: {{ .Release.Namespace }}
+#deny all ingress traffic
+#add egress here to block access to some certain ip or ip range e.g, restrict pod access to the metadata API
+#See also: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+spec:
+  podSelector:
+    matchLabels:
+      role: playbackengine
+  policyTypes:
+    - Ingress
+    - Egress
+  {{- include "playback-engine.networkPolicy.egress" . | nindent 2 }}

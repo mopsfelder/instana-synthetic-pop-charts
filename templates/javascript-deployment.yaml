@@ -1,0 +1,151 @@
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+{{- if .Values.javascript.enabled }}
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: synthetic-pop-javascript-playback-engine
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: javascript
+    component: synthetic-playback-javascript
+spec:
+  selector:
+    matchLabels:
+      {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: javascript
+      component: synthetic-playback-javascript
+  replicas: {{ .Values.javascript.replicas | default 1 }}
+  template:
+    metadata:
+      labels:
+        {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app.kubernetes.io/name: javascript
+        component: synthetic-playback-javascript
+        role: playbackengine
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+      imagePullSecrets:
+      - name: {{ .Values.javascript.image.pullSecret }}
+      serviceAccountName: {{ template "synthetic-pop.javascriptServiceAccountName" . }}
+      {{- include "synthetic-pop.seccomp" . | nindent 6 }}
+      containers:
+      - name: synthetic-playback-javascript
+        image: {{ include "image" .Values.javascript.image | quote}}
+        imagePullPolicy: {{ .Values.javascript.image.pullPolicy }}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          limits:
+            cpu: {{ .Values.javascript.resources.limits.cpu }}
+            memory: {{ .Values.javascript.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.javascript.resources.requests.cpu }}
+            memory: {{ .Values.javascript.resources.requests.memory }}
+        livenessProbe:
+         httpGet:
+            path: 1.0/synthetics/javascript/status
+            port: 8080
+         initialDelaySeconds: 30
+         timeoutSeconds: 15
+        readinessProbe:
+         httpGet:
+            path: 1.0/synthetics/javascript/readiness
+            port: 8080
+         initialDelaySeconds: 30
+         timeoutSeconds: 15
+        ports:
+         - containerPort: 8080
+           name: web
+           protocol: TCP
+        volumeMounts:
+          - mountPath: /opt/ibm/microservice/javascript-playback/logs
+            name: javascript-logs
+          - mountPath: /tmp
+            name: tmp
+          {{- if .Values.redis.tls.enabled }}
+          - name: tls
+            mountPath: {{ include "tls.certPath" . | quote }}
+            readOnly: true
+          {{- else }}
+          - name: redis
+            mountPath: {{ include "redis.passPath" . | quote }}
+            readOnly: true
+          {{- end }}
+        env:
+        - name: MODE
+          value: "httpscript"
+        # REDIS URL: For connecting to REDIS server.
+        # Both parameters should match the values in the synthetic PoP controller.
+        # ConfigurationQueue is the redis queue that test config is pushed onto.
+        # AARQueue is the queue http playback will push resulting AARs onto.
+        # httpscript mode REDIS URL
+        - name: HTTPSCRIPT_REDIS_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpScriptPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: HTTP_REDIS_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: TLS_ENABLED
+          value: {{ .Values.redis.tls.enabled | default false | quote }}
+        {{- if .Values.redis.tls.enabled }}
+        - name: CERTIFICATE_PATH
+          value: {{ include "tls.certPath" . | quote }}
+        {{- else }}
+        - name: REDIS_PASSWORD_PATH
+          value: {{ include "redis.passPath" . | quote }}
+        {{- end }}
+        - name: REDIS_PASSWORD
+          value: ""
+        # on for Redis transport to be enabled off for not.
+        - name: ENABLEREDIS
+          value: "on"
+        # length of sandbox pool, only used in httpscript mode
+        - name: SANDBOX_LENGTH
+          value: "3"
+        - name: DISABLE_REQUEST_KEEP_ALIVE
+          value: "yes"
+        # mins of execution time out, used in httpscript mode
+        - name: HTTPSCRIPT_TIMEOUT
+          value: "1"
+        # How many CPU core will be used by the playback, less than the core number of your host
+        - name: CORE_USED
+          value: "1"
+        # concurrency request number,only used in http mode , default is 500
+        - name: CONCURRENCY_REQUESTS
+          value: "500"
+        # Loglevel: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK, OFF
+        - name: LOGLEVEL
+          value: {{ .Values.javascript.traceLevel | default "INFO" | quote }}
+      volumes:
+      - name: javascript-logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {} 
+      {{- if .Values.redis.tls.enabled }}
+      - name: tls
+        secret:
+          secretName: {{ .Values.redis.tls.secretName | quote }}
+          optional: false
+      {{- else }}
+      - name: redis
+        secret:
+          secretName: {{ template "redis.secretName" . }}
+          optional: false
+      {{- end }}
+{{- end }}

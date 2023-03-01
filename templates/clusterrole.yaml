@@ -1,0 +1,13 @@
+{{- if .Values.rbac.create }}
+---
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "synthetic-pop.clusterroleName" . }}
+  labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+{{- end }}

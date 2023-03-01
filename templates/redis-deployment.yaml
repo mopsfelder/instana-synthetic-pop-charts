@@ -1,0 +1,103 @@
+---
+# IBM Confidential
+# PID 5737-N85, 5900-AG5
+# Copyright IBM Corp. 2022
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synthetic-pop-redis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      serviceAccountName: {{ template "synthetic-pop.redisServiceAccountName" . }}
+      imagePullSecrets:
+      - name: {{ .Values.redis.image.pullSecret }}
+      {{- include "synthetic-pop.seccomp" . | nindent 6 }}
+      containers:
+      - name: redis
+        image: {{ include "image" .Values.redis.image | quote}}
+        imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+              drop:
+                - ALL
+        volumeMounts:
+          {{- if .Values.redis.tls.enabled }}
+          - name: tls
+            mountPath: {{ include "tls.certPath" . | quote }}
+            readOnly: true
+          {{- else }}
+          - name: redis
+            mountPath: {{ include "redis.passPath" . | quote }}
+            readOnly: true
+          {{- end }}
+        env:
+        - name: TLS_ENABLED
+          value: {{ .Values.redis.tls.enabled | default false | quote }}
+        {{- if .Values.redis.tls.enabled }}
+        - name: CERTIFICATE_PATH
+          value: {{ include "tls.certPath" . | quote }}
+        {{- else }}
+        - name: REDIS_PASSWORD_PATH
+          value: {{ include "redis.passPath" . | quote }}
+        {{- end }}
+        - name: REDIS_PASSWORD
+          value: ""
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: {{ .Values.redis.resources.limits.cpu }}
+            memory: {{ .Values.redis.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.redis.resources.requests.cpu }}
+            memory: {{ .Values.redis.resources.requests.memory }}
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - /etc/redis/run.sh
+            - health
+          initialDelaySeconds: 60
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - /etc/redis/run.sh
+            - health
+          initialDelaySeconds: 45
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+      volumes:
+      {{- if .Values.redis.tls.enabled }}
+      - name: tls
+        secret:
+          secretName: {{ .Values.redis.tls.secretName | quote }}
+          optional: false
+      {{- else }}
+      - name: redis
+        secret:
+          secretName: {{ template "redis.secretName" . }}
+          optional: false
+      {{- end }}

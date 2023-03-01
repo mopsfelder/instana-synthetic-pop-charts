@@ -1,0 +1,68 @@
+{{/*
+IBM Confidential
+PID 5737-N85, 5900-AG5
+Copyright IBM Corp. 2022
+*/}}
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+{{/* instanaKey should not empty */}}
+{{- if empty .Values.controller.instanaKey -}}
+  {{- $errorInstana := "\ninstanaKey ERROR: Your must provide instanaKey." -}}
+  {{- $errorInstana = print $errorInstana "\n    'controller.instanaKey' must not be empty, please add '--set controller.instanaKey=<instanaKey>' to the command." -}}
+  {{- printf $errorInstana | fail -}}
+{{- end -}}
+
+{{/* instanaSyntheticEndpoint should not empty */}}
+{{- if empty .Values.controller.instanaSyntheticEndpoint -}}
+  {{- $errorInstana := "\ninstanaSyntheticEndpoint ERROR: Your must provide instanaSyntheticEndpoint." -}}
+  {{- $errorInstana = print $errorInstana "\n    'controller.instanaSyntheticEndpoint' must not be empty, please add '--set controller.instanaSyntheticEndpoint=<instanaSyntheticEndpoint>' to the command." -}}
+  {{- printf $errorInstana | fail -}}
+{{- end -}}
+
+{{/* Location should not be empty */}}
+{{- if empty .Values.controller.location -}}
+  {{- $errorLocation := "\nLOCATION ERROR: Your must provide location." -}}
+  {{- $errorLocation = print $errorLocation "\n    'controller.location' must not be empty, please add '--set controller.location=<Location>' to the command." -}}
+  {{- printf $errorLocation | fail -}}
+{{- end -}}
+
+{{/* downloadKey should not be empty */}}
+{{- if and (empty .Values.downloadKey) (eq .Values.controller.image.pullSecret "instana-io") -}}
+  {{- $errorSecret := "\ndownloadKey ERROR: You must provide downloadKey." -}}
+  {{- $errorSecret = print $errorSecret "\n    'downloadKey' must not be empty, please add '--set downloadKey=<SecretKey>' to the command." -}}
+  {{- printf $errorSecret | fail -}}
+{{- end -}}
+
+{{/* Redis password should not be empty */}}
+{{- if not .Values.redis.tls.enabled -}}
+{{- if empty .Values.redis.password -}}
+  {{- $errorString := "\nPASSWORDS ERROR: You must provide redis passwords when install or update." -}}
+  {{- $errorString = print $errorString "\n    'redis.password' must not be empty, please add '--set redis.password=<RedisPassword>' to the command." -}}
+  {{- printf $errorString | fail -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Check redis password length should >= 10 */}}
+{{- if not .Values.redis.tls.enabled -}}
+{{- $length := len (.Values.redis.password | toString) -}}
+{{- if lt $length 10 -}}
+  {{- printf "\nPASSWORDS ERROR: redis password length should greater than or equal to 10, current length is %d." $length | fail -}}
+{{- end -}}
+{{- end -}}
+
+{{/* Check secretName */}}
+{{- if .Values.redis.tls.enabled -}}
+{{- if empty .Values.redis.tls.secretName -}}
+  {{- printf "\nsecretName empty: secretName must be provided when redis.tls is enabled." | fail -}}
+{{- end -}}
+{{- end -}}
+
+{{/* lookup existing secret */}}
+{{- if and .Values.redis.tls.enabled (not (empty .Values.redis.tls.secretName)) -}}
+{{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace .Values.redis.tls.secretName).data -}}
+{{- if not $existingSecret -}}
+  {{- printf "\nsecret Not Exist: provided secret %s does not exist" .Values.redis.tls.secretName | fail -}}
+{{- end -}}
+{{- end -}}
