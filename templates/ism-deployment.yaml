@@ -37,12 +37,12 @@ spec:
                 values:
                 - amd64
       imagePullSecrets:
-      - name: {{ .Values.ism.image.pullSecret }}
+      - name: {{ .Values.downloadSecret }}
       serviceAccountName: {{ template "synthetic-pop.ismServiceAccountName" . }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: synthetic-playback-ism
-        image: {{ include "image" .Values.ism.image | quote}}
+        image: {{ .Values.imagePath }}/{{ .Values.ism.image.name }}:{{ .Values.ism.image.tag }}
         imagePullPolicy: {{ .Values.ism.image.pullPolicy }}
         securityContext:
             privileged: false

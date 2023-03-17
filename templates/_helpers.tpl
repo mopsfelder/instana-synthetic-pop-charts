@@ -92,7 +92,6 @@ egress:
 {{- end -}}
 {{- end -}}
 
-
 {{/*
 Generates the dockerconfig for the credentials to pull from containers.instana.io
 */}}
@@ -136,38 +135,6 @@ component: {{ .name }}
 {{- end -}}
 {{- end -}}
 
-{{/*
-Composes a container image from a dict containing a "name" field (required), "tag" and "digest" (both optional, if both provided, "digest" has priority)
-*/}}
-{{- define "image" }}
-{{- $name := .name }}
-{{- $tag := .tag }}
-{{- $digest := .digest }}
-{{- if $digest }}
-{{- printf "%s@%s" $name $digest }}
-{{- else if $tag }}
-{{- printf "%s:%s" $name $tag }}
-{{- else }}
-{{- print $name }}
-{{- end }}
-{{- end }}
-
-{{- define "synthetic-pop-controller.name" -}}
-{{- default .Chart.Name .Values.controller.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "synthetic-browserscript.name" -}}
-{{- default .Chart.Name .Values.browserscript.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "synthetic-http.name" -}}
-{{- default .Chart.Name .Values.http.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "synthetic-javascript.name" -}}
-{{- default .Chart.Name .Values.javascript.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{/* vim: set filetype=mustache: */}}
 {{/*
 Expand the name of the chart.
@@ -195,13 +162,6 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
-The name of the ClusterRole used.
-*/}}
-{{- define "synthetic-pop.clusterroleName" -}}
-{{- printf "%s-%s" (include "synthetic-pop.fullname" .) .Release.Namespace | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -215,20 +175,6 @@ Get the password secret.
 */}}
 {{- define "redis.secretName" -}}
 {{- printf "%s" (include "redis.fullname" .) -}}
-{{- end -}}
-
-{{/*
-Get the redis tls secret.
-*/}}
-{{- define "redis.secretNameTLS" -}}
-{{- printf "%s-tls" (include "redis.fullname" .) -}}
-{{- end -}}
-
-{{/*
-Get the password key to be retrieved from Redis secret.
-*/}}
-{{- define "redis.secretPasswordKey" -}}
-{{- printf "redis-password" -}}
 {{- end -}}
 
 {{/*
@@ -252,13 +198,6 @@ Define instanaKey Secret Name.
 */}}
 {{- define "instanaKey.secretName" -}}
 {{- printf "%s-%s" .Release.Name "instana-key" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Get instanaKey to be retrieved from instanaKey Secret.
-*/}}
-{{- define "instanaKey.secretInstanaKeyName" -}}
-{{- printf "instana-key" -}}
 {{- end -}}
 
 {{/*

@@ -37,12 +37,12 @@ spec:
                 values:
                 - amd64
       imagePullSecrets:
-      - name: {{ .Values.javascript.image.pullSecret }}
+      - name: {{ .Values.downloadSecret }}
       serviceAccountName: {{ template "synthetic-pop.javascriptServiceAccountName" . }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: synthetic-playback-javascript
-        image: {{ include "image" .Values.javascript.image | quote}}
+        image: {{ .Values.imagePath }}/{{ .Values.javascript.image.name }}:{{ .Values.javascript.image.tag }}
         imagePullPolicy: {{ .Values.javascript.image.pullPolicy }}
         securityContext:
           privileged: false

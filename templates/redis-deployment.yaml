@@ -9,6 +9,7 @@ metadata:
   name: synthetic-pop-redis
   namespace: {{ .Release.Namespace }}
   labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
     app: redis
 spec:
   replicas: 1
@@ -18,15 +19,16 @@ spec:
   template:
     metadata:
       labels:
+        {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
         app: redis
     spec:
       serviceAccountName: {{ template "synthetic-pop.redisServiceAccountName" . }}
       imagePullSecrets:
-      - name: {{ .Values.redis.image.pullSecret }}
+      - name: {{ .Values.downloadSecret }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: redis
-        image: {{ include "image" .Values.redis.image | quote}}
+        image: {{ .Values.imagePath }}/{{ .Values.redis.image.name }}:{{ .Values.redis.image.tag }}
         imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
         securityContext:
           privileged: false

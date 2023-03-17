@@ -29,12 +29,12 @@ spec:
         role: playbackengine
     spec:
       imagePullSecrets:
-      - name: {{ .Values.browserscript.image.pullSecret }}
+      - name: {{ .Values.downloadSecret }}
       serviceAccountName: {{ template "synthetic-pop.browserServiceAccountName" . }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: synthetic-playback-browserscript
-        image: {{ include "image" .Values.browserscript.image | quote}}
+        image: {{ .Values.imagePath }}/{{ .Values.browserscript.image.name }}:{{ .Values.browserscript.image.tag }}
         imagePullPolicy: {{ .Values.browserscript.image.pullPolicy }}
         securityContext:
           privileged: false

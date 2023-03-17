@@ -36,11 +36,11 @@ spec:
                 values:
                 - amd64
       imagePullSecrets:
-        - name: {{ .Values.controller.image.pullSecret }}
+        - name: {{ .Values.downloadSecret }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: synthetic-pop-controller
-        image: {{ include "image" .Values.controller.image | quote}}
+        image: {{ .Values.imagePath }}/{{ .Values.controller.image.name }}:{{ .Values.controller.image.tag }}
         imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
         securityContext:
           privileged: false

@@ -29,10 +29,12 @@ APP VERSION: {{ .Chart.AppVersion }}
 {{- end -}}
 
 {{/* downloadKey should not be empty */}}
-{{- if and (empty .Values.downloadKey) (eq .Values.controller.image.pullSecret "instana-io") -}}
+{{- if .Values.imagePath | hasPrefix "containers.instana.io" -}}
+{{- if and (empty .Values.downloadKey) (eq .Values.downloadSecret "instana-io") -}}
   {{- $errorSecret := "\ndownloadKey ERROR: You must provide downloadKey." -}}
   {{- $errorSecret = print $errorSecret "\n    'downloadKey' must not be empty, please add '--set downloadKey=<SecretKey>' to the command." -}}
   {{- printf $errorSecret | fail -}}
+{{- end -}}
 {{- end -}}
 
 {{/* Redis password should not be empty */}}
