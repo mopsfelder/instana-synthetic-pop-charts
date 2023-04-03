@@ -65,6 +65,11 @@ spec:
           - name: instana-key
             mountPath: {{ template "instana.keyPath" . }}
             readOnly: true
+          {{- if .Values.proxy.popProxyUserPass }}
+          - name: proxy-user-pass
+            mountPath: {{ template "proxy.userPassPath" . }}
+            readOnly: true
+          {{- end }}
           {{- if .Values.redis.tls.enabled }}
           - name: tls
             mountPath: {{ include "tls.certPath" . | quote }}
@@ -133,9 +138,19 @@ spec:
         # The thread pool size for publishing result messages into Ingress service in parallel, default is 5
         - name: PUBLISHAAR_THREAD_POOL_SIZE
           value: {{ .Values.controller.publishAARThreadPoolSize | quote }}
+        # Protocol for proxy server:  http | socks
+        - name: POP_PROXY_PROTOCOL
+          value: {{ .Values.proxy.popProxyProtocol | default "" | quote }}
         # PoP proxy server for communicating with instana backend server
         - name: POP_PROXY_SERVER
           value: {{ .Values.proxy.popProxyServer | default "" | quote }}
+        # reserve this variable for container not supporting volume mount
+        - name: POP_PROXY_AUTH
+          value: ""
+        {{- if .Values.proxy.popProxyUserPass }}
+        - name: POP_PROXY_AUTH_PATH
+          value: {{ include "proxy.userPassPath" . | quote }}
+        {{- end }}
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
         - name: CLUSTERNAME
@@ -160,3 +175,9 @@ spec:
         secret:
           secretName: {{ template "instanaKey.secretName" . }}
           optional: false
+      {{- if .Values.proxy.popProxyUserPass }}
+      - name: proxy-user-pass
+        secret:
+          secretName: {{ template "proxyUserPass.secretName" . }}
+          optional: false
+      {{- end }}

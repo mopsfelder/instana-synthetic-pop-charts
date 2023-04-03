@@ -202,10 +202,14 @@ redis:
       cpu: 1
       memory: "1Gi"
 
-#proxy specifies the proxy configuration for Synthetic PoP
+#proxy specifies the proxy configuration for Synthetic PoP to connect to Instana backend server
 proxy:
-  # proxy.popProxyServer: the proxy server for synthetic PoP to connect the backend server, Format:  "ipaddress:port"
+  # proxy.popProxyProtocol: the protocol (http | socks) for the proxy server
+  popProxyProtocol: ""
+  # proxy.popProxyServer: the proxy server for synthetic PoP to connect to the backend server, format:  "ipaddress:port"
   popProxyServer: ""
+  # proxy.popProxyUserPass: the username and password for the proxy server authentication, format:  "username:password"
+  popProxyUserPass: ""
 
 serviceAccount:
   name: synthetic-pop-serviceaccount
@@ -213,6 +217,9 @@ serviceAccount:
 
 # Apply RuntimeDefault seccomp profile, recommend changing to true for ocp > = 4.11, k8s  >= 1.19
 seccompDefault: false
+
+# To enable/disable Network Policy installation
+networkPolicyEnabled: true
 
 # Apply Network Policy to playback engines
 # See more about network policy in https://kubernetes.io/docs/concepts/services-networking/network-policies/

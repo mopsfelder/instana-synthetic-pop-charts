@@ -5,18 +5,27 @@
 #
 
 #To use network policies, you must be using a networking solution which supports NetworkPolicy.
+{{- if .Values.networkPolicyEnabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: synthetic-pop-controller-network-policy
   namespace: {{ .Release.Namespace }}
-#deny all ingress traffic
+# only allow ingress traffic from instana-agent
 spec:
   podSelector:
     matchLabels:
       component: synthetic-pop-controller
   policyTypes:
     - Ingress
+  ingress:
+    - ports:
+      - port: 8443
+    - from:
+      # only allow instana-agent to access
+      - podSelector:
+         matchLabels:
+           app.kubernetes.io/name: instana-agent
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -68,3 +77,4 @@ spec:
     - Ingress
     - Egress
   {{- include "playback-engine.networkPolicy.egress" . | nindent 2 }}
+{{- end}}

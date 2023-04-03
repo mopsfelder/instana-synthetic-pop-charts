@@ -201,6 +201,13 @@ Define instanaKey Secret Name.
 {{- end -}}
 
 {{/*
+Define proxyUserPass Secret Name.
+*/}}
+{{- define "proxyUserPass.secretName" -}}
+{{- printf "%s-%s" .Release.Name "proxy-user-pass" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Get tls certificate path.
 */}}
 {{- define "tls.certPath" -}}
@@ -212,4 +219,11 @@ Get instananKey path
 */}}
 {{- define "instana.keyPath" -}}
 {{- printf "/etc/pop/instanakey" -}}
+{{- end -}}
+
+{{/*
+Get proxyUserPassPath path
+*/}}
+{{- define "proxy.userPassPath" -}}
+{{- printf "/etc/pop/proxyuserpass" -}}
 {{- end -}}
