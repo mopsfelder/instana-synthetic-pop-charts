@@ -34,9 +34,13 @@ spec:
               - key: kubernetes.io/arch
                 operator: In
                 values:
-                - amd64
+                - {{ .Values.popArch }}
       imagePullSecrets:
+        {{- if .Values.downloadKey }}
+        - name: "instana-io"
+        {{- else if .Values.downloadSecret }}
         - name: {{ .Values.downloadSecret }}
+        {{- end }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: synthetic-pop-controller
@@ -65,7 +69,7 @@ spec:
           - name: instana-key
             mountPath: {{ template "instana.keyPath" . }}
             readOnly: true
-          {{- if .Values.proxy.popProxyUserPass }}
+          {{- if or (.Values.proxy.popProxyUserPass) (.Values.proxy.popProxyUserPassSecret) }}
           - name: proxy-user-pass
             mountPath: {{ template "proxy.userPassPath" . }}
             readOnly: true
@@ -96,6 +100,8 @@ spec:
         env:
         - name: LOCATION
           value: {{ .Values.controller.location | quote }}
+        - name: POP_VER
+          value: {{ .Chart.Version }}
         - name: PLAYBACK_CAPABILITIES
           value: {{ .Values.controller.capabilities | quote }}
         - name: CUSTOM_PROPERTIES
@@ -147,7 +153,7 @@ spec:
         # reserve this variable for container not supporting volume mount
         - name: POP_PROXY_AUTH
           value: ""
-        {{- if .Values.proxy.popProxyUserPass }}
+        {{- if or (.Values.proxy.popProxyUserPass) (.Values.proxy.popProxyUserPassSecret) }}
         - name: POP_PROXY_AUTH_PATH
           value: {{ include "proxy.userPassPath" . | quote }}
         {{- end }}
@@ -165,17 +171,34 @@ spec:
         secret:
           secretName: {{ .Values.redis.tls.secretName | quote }}
           optional: false
-      {{- else }}
+      {{- else if .Values.redis.password }}
       - name: redis
         secret:
           secretName: {{ template "redis.secretName" . }}
           optional: false
+      {{- else if .Values.redis.passwordSecret }}
+      - name: redis
+        secret:
+          secretName: {{ .Values.redis.passwordSecret }}
+          optional: false
       {{- end }}
+      {{- if .Values.controller.instanaKeySecret }}
+      - name: instana-key
+        secret:
+          secretName: {{ .Values.controller.instanaKeySecret }}
+          optional: false
+      {{- else }}
       - name: instana-key
         secret:
           secretName: {{ template "instanaKey.secretName" . }}
           optional: false
-      {{- if .Values.proxy.popProxyUserPass }}
+      {{- end}}
+      {{- if .Values.proxy.popProxyUserPassSecret }}
+      - name: proxy-user-pass
+        secret:
+          secretName: {{ .Values.proxy.popProxyUserPassSecret }}
+          optional: false
+      {{- else if .Values.proxy.popProxyUserPass }}
       - name: proxy-user-pass
         secret:
           secretName: {{ template "proxyUserPass.secretName" . }}

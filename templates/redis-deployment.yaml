@@ -24,7 +24,11 @@ spec:
     spec:
       serviceAccountName: {{ template "synthetic-pop.redisServiceAccountName" . }}
       imagePullSecrets:
+      {{- if .Values.downloadKey }}
+      - name: "instana-io"
+      {{- else if .Values.downloadSecret }}
       - name: {{ .Values.downloadSecret }}
+      {{- end }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
       - name: redis
@@ -32,7 +36,8 @@ spec:
         imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
         securityContext:
           privileged: false
-          readOnlyRootFilesystem: true
+          # This is needed to be false if you need to test this in a Macbook
+          readOnlyRootFilesystem: {{ .Values.roRootFileSystem }}
           allowPrivilegeEscalation: false
           runAsNonRoot: true
           capabilities:
@@ -97,9 +102,14 @@ spec:
         secret:
           secretName: {{ .Values.redis.tls.secretName | quote }}
           optional: false
-      {{- else }}
+      {{- else if .Values.redis.password }}
       - name: redis
         secret:
           secretName: {{ template "redis.secretName" . }}
+          optional: false
+      {{- else if .Values.redis.passwordSecret }}
+      - name: redis
+        secret:
+          secretName: {{ .Values.redis.passwordSecret }}
           optional: false
       {{- end }}

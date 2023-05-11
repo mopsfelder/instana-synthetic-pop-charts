@@ -8,9 +8,9 @@ CHART VERSION: {{ .Chart.Version }}
 APP VERSION: {{ .Chart.AppVersion }}
 
 {{/* instanaKey should not empty */}}
-{{- if empty .Values.controller.instanaKey -}}
+{{- if and (empty .Values.controller.instanaKey) (empty .Values.controller.instanaKeySecret) -}}
   {{- $errorInstana := "\ninstanaKey ERROR: Your must provide instanaKey." -}}
-  {{- $errorInstana = print $errorInstana "\n    'controller.instanaKey' must not be empty, please add '--set controller.instanaKey=<instanaKey>' to the command." -}}
+  {{- $errorInstana = print $errorInstana "\n    'controller.instanaKey' and 'controller.instanaKeySecret' must not be empty, please add '--set controller.instanaKey=<instanaKey>' or '--set controller.instanaKeySecret=<instanaKeySecret>' to the command." -}}
   {{- printf $errorInstana | fail -}}
 {{- end -}}
 
@@ -30,27 +30,29 @@ APP VERSION: {{ .Chart.AppVersion }}
 
 {{/* downloadKey should not be empty */}}
 {{- if .Values.imagePath | hasPrefix "containers.instana.io" -}}
-{{- if and (empty .Values.downloadKey) (eq .Values.downloadSecret "instana-io") -}}
+{{- if and  (and (empty .Values.downloadKey) (empty .Values.downloadSecret)) (eq .Values.downloadSecret "instana-io") -}}
   {{- $errorSecret := "\ndownloadKey ERROR: You must provide downloadKey." -}}
-  {{- $errorSecret = print $errorSecret "\n    'downloadKey' must not be empty, please add '--set downloadKey=<SecretKey>' to the command." -}}
+  {{- $errorSecret = print $errorSecret "\n    'downloadKey' and 'downloadSecret' must not be empty, please add '--set downloadKey=<downloadKey>' or '--set downloadSecret=<downloadKeySecret>' to the command." -}}
   {{- printf $errorSecret | fail -}}
 {{- end -}}
 {{- end -}}
 
 {{/* Redis password should not be empty */}}
 {{- if not .Values.redis.tls.enabled -}}
-{{- if empty .Values.redis.password -}}
+{{- if and (empty .Values.redis.password) (empty .Values.redis.passwordSecret) -}}
   {{- $errorString := "\nPASSWORDS ERROR: You must provide redis passwords when install or update." -}}
-  {{- $errorString = print $errorString "\n    'redis.password' must not be empty, please add '--set redis.password=<RedisPassword>' to the command." -}}
+  {{- $errorString = print $errorString "\n    'redis.password' and 'redis.passwordSecret' must not be empty, please add '--set redis.password=<RedisPassword>' or '--set redis.passwordSecret=<SecretName>' to the command." -}}
   {{- printf $errorString | fail -}}
 {{- end -}}
 {{- end -}}
 
 {{/* Check redis password length should >= 10 */}}
 {{- if not .Values.redis.tls.enabled -}}
+{{- if not (empty .Values.redis.password) -}}
 {{- $length := len (.Values.redis.password | toString) -}}
 {{- if lt $length 10 -}}
   {{- printf "\nPASSWORDS ERROR: redis password length should greater than or equal to 10, current length is %d." $length | fail -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 

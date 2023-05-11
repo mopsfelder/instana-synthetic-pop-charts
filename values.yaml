@@ -17,7 +17,11 @@ controller:
 
   # Required, controller.instanaKey is Instana agent key, the key can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
   # If there are multiple backends and each backend requires different key, use semicolon to separate multiple keys, e.g. "anAgentKey;anotherAgentKey"
+  # Either instanaKey or instanaKeySecret must be provided
+  # Instana agent key string
   instanaKey: ""
+  # The name of secret which stores the Instana agent key string, the secret must have a field called "instana-key"
+  instanaKeySecret: ""
 
   # Required, controller.instanaSyntheticEndpoint is the Instana backend URL, e.g. "https://synthetics-pink-saas.instana.rocks"
   # This value can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
@@ -182,13 +186,17 @@ redis:
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
-  # if tls.enabled is false, the password must be provided for Redis server authentication
+  # If tls.enabled is false,  either password or passwordSecret must be provided must be provided for Redis server authentication
+  # Redis password string: password length should be greater than or equal to 10
   password: ""
+  # The name of secret which stores Redis password string, the secret must have a field called "redis-password"
+  passwordSecret: ""
+
   tls:
     # To enable redis TLS or not
     enabled: false
-    # If tls.enabled is true, a secret of type kubernetes.io/tls must be specified.
-    # secretName is the name of the secret that has the relevant files including tls.key, tls.crt and ca.crt.
+    # If tls.enabled is true, a secret of kubernetes.io/tls type must be specified.
+    # secretName is the name of the secret that has the relevant files, it must have three fields: tls.key, tls.crt and ca.crt.
     secretName: ""
 
   ## Default Container resource requests and limits
@@ -208,8 +216,12 @@ proxy:
   popProxyProtocol: ""
   # proxy.popProxyServer: the proxy server for synthetic PoP to connect to the backend server, format:  "ipaddress:port"
   popProxyServer: ""
-  # proxy.popProxyUserPass: the username and password for the proxy server authentication, format:  "username:password"
+  # proxy.popProxyUserPass: the username and password for the proxy server authentication,
+  # Either popProxyUserPass or popProxyUserPassSecret can be set
+  # Proxy username and password string,  format:  "username:password"
   popProxyUserPass: ""
+  # The name of secret which stores proxy username and password(format:  "username:password"), the secret must have a field called "proxy-user-pass"
+  popProxyUserPassSecret: ""
 
 serviceAccount:
   name: synthetic-pop-serviceaccount
@@ -236,12 +248,19 @@ playbackEngineNetworkPolicy:
           - 10.0.0.0/24
           - 169.254.169.254/32
 
-# Required, Secrets used to pull images
-# This value can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
-downloadKey: ""
-
-# for production: "containers.instana.io/instana/release/synthetic"
+# Image common path, for instana production, it is "containers.instana.io/instana/release/synthetic"
 imagePath: "containers.instana.io/instana/release/synthetic"
 
-# for production : "instana-io"
+# Required, either downloadKey or downloadSecret must be provided to pull images
+# The string of download key, this value can be found by clicking on "Deploy a PoP" within the Instana Synthetic Monitoring user interface page.
+downloadKey: ""
+# The name of secret of kubernetes.io/dockerconfigjson type used to pull images from the image registry.
 downloadSecret : "instana-io"
+
+### TESTING values if you want to test the PoP from an ARM Macbook (successfully tested on M1) ###
+# Change it to false for testing.
+# ReadOnlyRootFileSystem
+roRootFileSystem: true
+# Select the Point Of Presence Architecture, default: amd64
+# Change it to arm64 for testing.
+popArch: "amd64"

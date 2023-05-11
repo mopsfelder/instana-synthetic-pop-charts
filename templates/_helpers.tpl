@@ -190,7 +190,7 @@ Return Redis password
 Get redis password path.
 */}}
 {{- define "redis.passPath" -}}
-{{- printf "/etc/redis/redispass" -}}
+{{- printf "/etc/pop/redispass" -}}
 {{- end -}}
 
 {{/*
@@ -211,7 +211,7 @@ Define proxyUserPass Secret Name.
 Get tls certificate path.
 */}}
 {{- define "tls.certPath" -}}
-{{- printf "/etc/certs" -}}
+{{- printf "/etc/pop/certs" -}}
 {{- end -}}
 
 {{/*

@@ -26,7 +26,7 @@ for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$
     kubectl describe po $line -n $namespace >> ${line}_describe.log 2>&1
     case $line in
         *"controller"*)
-           kubectl exec $line -n $namespace -- printenv | grep -i POP_VER  >> version.log 2>&1
+           kubectl exec $line -n $namespace -- printenv | grep -i POP_CONTROLLER_VER  >> version.log 2>&1
            kubectl cp ${line}:logs ./controller-log -n $namespace >> mountdir.log 2>&1
            ;;
         *"http"*)

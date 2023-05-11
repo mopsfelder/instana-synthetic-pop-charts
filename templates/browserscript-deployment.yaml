@@ -29,7 +29,11 @@ spec:
         role: playbackengine
     spec:
       imagePullSecrets:
+      {{- if .Values.downloadKey }}
+      - name: "instana-io"
+      {{- else if .Values.downloadSecret }}
       - name: {{ .Values.downloadSecret }}
+      {{- end }}
       serviceAccountName: {{ template "synthetic-pop.browserServiceAccountName" . }}
       {{- include "synthetic-pop.seccomp" . | nindent 6 }}
       containers:
@@ -129,10 +133,15 @@ spec:
           secret:
             secretName: {{ .Values.redis.tls.secretName | quote }}
             optional: false
-        {{- else }}
+        {{- else if .Values.redis.password }}
         - name: redis
           secret:
             secretName: {{ template "redis.secretName" . }}
+            optional: false
+        {{- else if .Values.redis.passwordSecret }}
+        - name: redis
+          secret:
+            secretName: {{ .Values.redis.passwordSecret }}
             optional: false
         {{- end }}
 {{- end }}
