@@ -41,6 +41,10 @@ for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$
            kubectl exec $line -n $namespace -- printenv | grep -i BROWSERSCRIPT_ENGINE_VERSION  >> version.log 2>&1
            kubectl cp ${line}:logs ./browserscript-engine-log -n $namespace >> mountdir.log 2>&1
            ;;
+        *"redis"*)
+           kubectl exec $line -n $namespace -- printenv | grep -i REDIS_VER >> version.log 2>&1
+           kubectl cp ${line}:logs ./redis-log -n $namespace >> mountdir.log 2>&1
+           ;;
         *)
           ;;
     esac
