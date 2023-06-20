@@ -248,8 +248,8 @@ playbackEngineNetworkPolicy:
           - 10.0.0.0/24
           - 169.254.169.254/32
 
-# Image common path, for instana production, it is "containers.instana.io/instana/release/synthetic"
-imagePath: "containers.instana.io/instana/release/synthetic"
+# Image common path, for instana production, it is "containers.instana.io/synthetic"
+imagePath: "containers.instana.io/synthetic"
 
 # Required, either downloadKey or downloadSecret must be provided to pull images
 # The string of download key, this value can be found by clicking on "Deploy a PoP" within the Instana Synthetic Monitoring user interface page.
