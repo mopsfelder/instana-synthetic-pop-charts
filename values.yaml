@@ -112,11 +112,11 @@ javascript:
   ## Default limits cpu: 1 memory: "500Mi", requests cpu: 200m memory: "400Mi"
   resources:
     limits:
-       cpu: 1
-       memory: "500Mi"
+      cpu: 1
+      memory: "500Mi"
     requests:
-       cpu: 200m
-       memory: "400Mi"
+      cpu: 200m
+      memory: "400Mi"
 
 # synthetic-pop-browserscript  playback engine
 browserscript:
@@ -142,11 +142,11 @@ browserscript:
   ## Default limits cpu: 4 memory: "3Gi", requests cpu: 2 memory: "2Gi"
   resources:
     limits:
-       cpu: 4
-       memory: "3Gi"
+      cpu: 4
+      memory: "3Gi"
     requests:
-       cpu: 2
-       memory: "2Gi"
+      cpu: 2
+      memory: "2Gi"
 
 # synthetic-pop-ism playback engine
 ism:
@@ -238,15 +238,15 @@ networkPolicyEnabled: true
 playbackEngineNetworkPolicy:
   enabled: false
   egress:
-  - to:
-    - ipBlock:
-        # allow access to ip range: 1.0.0.0-254.255.255.255
-        cidr: 0.0.0.0/0
-        # block access to ip range: 10.0.0.0-10.0.0.255
-        # block access to metadata IP address for all cloud providers: 169.254.169.254
-        except:
-          - 10.0.0.0/24
-          - 169.254.169.254/32
+    - to:
+        - ipBlock:
+            # allow access to ip range: 1.0.0.0-254.255.255.255
+            cidr: 0.0.0.0/0
+            # block access to ip range: 10.0.0.0-10.0.0.255
+            # block access to metadata IP address for all cloud providers: 169.254.169.254
+            except:
+              - 10.0.0.0/24
+              - 169.254.169.254/32
 
 # Image common path, for instana production, it is "containers.instana.io/synthetic"
 imagePath: "containers.instana.io/synthetic"
