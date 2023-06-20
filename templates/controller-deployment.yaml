@@ -9,12 +9,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app: synthetic-pop
     app.kubernetes.io/name: controller
     component: synthetic-pop-controller
 spec:
   selector:
     matchLabels:
       {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app: synthetic-pop
       app.kubernetes.io/name: controller
       component: synthetic-pop-controller
   replicas: 1
@@ -22,6 +24,7 @@ spec:
     metadata:
       labels:
         {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app: synthetic-pop
         app.kubernetes.io/name: controller
         component: synthetic-pop-controller
     spec:

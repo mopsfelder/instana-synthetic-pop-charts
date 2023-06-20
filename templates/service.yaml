@@ -9,6 +9,7 @@ metadata:
   name: synthetic-pop-redis
   namespace: {{ .Release.Namespace }}
   labels:
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
     app: redis
 spec:
   type: ClusterIP
@@ -26,7 +27,8 @@ metadata:
   name: synthetic-pop-controller
   namespace: {{ .Release.Namespace }}
   labels:
-    app: controller
+    {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/name: controller
 spec:
   type: ClusterIP
   ports:

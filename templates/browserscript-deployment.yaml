@@ -10,20 +10,23 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app: synthetic-pop
     app.kubernetes.io/name: browserscript
     component: synthetic-playback-browserscript
 spec:
   selector:
     matchLabels:
       {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app: synthetic-pop
       app.kubernetes.io/name: browserscript
       component: synthetic-playback-browserscript
-  replicas: {{ .Values.browserscript.replicas | default 1 }}
+  replicas: {{ .Values.browserscript.replicas }}
   template:
     metadata:
       annotations:
       labels:
         {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app: synthetic-pop
         app.kubernetes.io/name: browserscript
         component: synthetic-playback-browserscript
         role: playbackengine

@@ -10,19 +10,22 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
+    app: synthetic-pop
     app.kubernetes.io/name: http
     component: synthetic-playback-http
 spec:
   selector:
     matchLabels:
       {{- include "synthetic-pop.selectorLabels" . | nindent 6 }}
+      app: synthetic-pop
       app.kubernetes.io/name: http
       component: synthetic-playback-http
-  replicas: {{ .Values.http.replicas | default 1 }}
+  replicas: {{ .Values.http.replicas }}
   template:
     metadata:
       labels:
         {{- include "synthetic-pop.commonLabels" . | nindent 8 }}
+        app: synthetic-pop
         app.kubernetes.io/name: http
         component: synthetic-playback-http
         role: playbackengine

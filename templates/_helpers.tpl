@@ -118,7 +118,6 @@ app.kubernetes.io/version: {{ .Chart.Version }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ include "synthetic-pop.chart" . }}
-app: synthetic-pop
 release: synthetic-pop
 {{- end -}}
 {{- end -}}
@@ -129,9 +128,7 @@ Add Helm metadata to selector labels specifically for deployments/daemonsets/sta
 {{- define "synthetic-pop.selectorLabels" -}}
 {{- if not .Values.templating }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: synthetic-pop
 release: synthetic-pop
-component: {{ .name }}
 {{- end -}}
 {{- end -}}
 
