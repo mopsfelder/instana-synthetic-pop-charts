@@ -99,11 +99,6 @@ spec:
         env:
         - name: MODE
           value: "http"
-        # REDIS URL: For connecting to REDIS server.
-        # Both parameters should match the values in the synthetic PoP controller.
-        # ConfigurationQueue is the redis queue that test config is pushed onto.
-        - name: HTTPSCRIPT_REDIS_URL
-          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpScriptPlaybackConfigQueue&AARQueue=AARQueue"
         - name: HTTP_REDIS_URL
           value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=HttpPlaybackConfigQueue&AARQueue=AARQueue"
         - name: TLS_ENABLED
@@ -117,24 +112,19 @@ spec:
         {{- end }}
         - name: REDIS_PASSWORD
           value: ""
-        - name: ENABLEREDIS
-          value: "on"
-        # length of sandbox pool, only used in httpscript mode
-        - name: SANDBOX_LENGTH
-          value: "3"
         # disable HTTP Agent that keeps socket connections alive between keep-alive requests,HTTP connection will be reused
         - name: DISABLE_REQUEST_KEEP_ALIVE
           value: "yes"
-        # mins of execution time out, used in http mode
+        # max of execution time out, used in http mode
         - name: HTTP_TIMEOUT
-          value: "1"
+          value: {{ .Values.http.maxTimeout | quote }}
         # How many CPU core will be used by the playback, less than the core number of your host
         - name: CORE_USED
           value: "1"
         # concurrency request number,only used in http mode , default is 500
         - name: CONCURRENCY_REQUESTS
           value: "500"
-        # Loglevel: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK, OFF
+        # Loglevel: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK
         - name: LOGLEVEL
           value: {{ .Values.http.traceLevel | default "INFO"	| quote }}
       volumes:

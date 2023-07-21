@@ -111,9 +111,11 @@ spec:
         - name: TRACE_LEVEL
           value: {{ .Values.browserscript.traceLevel | default "INFO" }}
         - name: BROWSERSCRIPT_TIMEOUT
-          value: "5"
+          value: {{ .Values.browserscript.maxTimeout | quote }}
         - name: BROWSERSCRIPT_MAX_TASKPOOL_SIZE
           value: "10"
+        - name: DEFAULT_DENY_LIST
+          value: {{ .Values.browserscript.defaultDenyList | quote }}
         # enable/disable headless browser mode
         - name: ENABLE_HEADLESS_BROWSER
           value: "false"

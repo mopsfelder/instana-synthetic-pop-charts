@@ -1,6 +1,6 @@
 # IBM Confidential
 # PID 5737-N85, 5900-AG5
-# Copyright IBM Corp. 2022
+# Copyright IBM Corp. 2023
 #
 # synthetic-pop-controller
 controller:
@@ -44,19 +44,17 @@ controller:
   # The value is recommended to set with equal or greater than 5, users can increase this value to accelerate the publishing for high workload, e.g, 10 or 20
   publishAARThreadPoolSize: 5
 
-  # controller.traceLevel is the tracing level, value can be TRACE, DEBUG, INFO, WARN and ERROR
-  # can also use ALL to enable all trace.
+  # controller.traceLevel is the tracing level, value can be ALL, TRACE, DEBUG, INFO, WARN and ERROR
   traceLevel: "INFO"
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 1 memory: "500Mi", requests cpu: 200m memory: "300Mi"
   resources:
-    limits:
-      cpu: 1
-      memory: 500Mi
     requests:
-      cpu: 200m
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      cpu: 150m
       memory: 300Mi
 
 # synthetic-pop-http playback engine
@@ -74,19 +72,21 @@ http:
   # http.replicas specifies the synthetic-pop-http pod instance number
   replicas: 1
 
-  # http.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK|OFF
+  # http.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK
   traceLevel: "INFO"
+
+  # http.maxTimeout (minutes) is the default timeout value of synthetic-pop-http playback engine
+  maxTimeout: 1
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 1 memory: "300Mi", requests cpu: 200m memory: "200Mi"
   resources:
-    limits:
-      cpu: 1
-      memory: 300Mi
     requests:
       cpu: 200m
       memory: 200Mi
+    limits:
+      cpu: 300m
+      memory: 300Mi
 
 
 # synthetic-pop-javascript playback engine
@@ -104,19 +104,21 @@ javascript:
   # javascript.replicas specifies the synthetic-pop-javascript pod instance number
   replicas: 1
 
-  # javascript.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK|OFF
+  # javascript.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK
   traceLevel: "INFO"
+
+  # javascript.maxTimeout (minutes) is the default timeout value of synthetic-pop-javascript playback engine
+  maxTimeout: 5
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 1 memory: "500Mi", requests cpu: 200m memory: "400Mi"
   resources:
-    limits:
-      cpu: 1
-      memory: "500Mi"
     requests:
-      cpu: 200m
-      memory: "400Mi"
+      cpu: 600m
+      memory: 200Mi
+    limits:
+      cpu: 800m
+      memory: 300Mi
 
 # synthetic-pop-browserscript  playback engine
 browserscript:
@@ -134,19 +136,26 @@ browserscript:
   # browserscript.replicas specifies the synthetic-pop-browserscript pod instance number
   replicas: 1
 
-  # browserscript.traceLevel is the tracing level, value can be error | warning | info | finest | all
-  traceLevel: "info"
+  # browserscript.traceLevel is the tracing level, value can be TRACE, DEBUG, INFO, WARN and ERROR
+  traceLevel: "INFO"
+
+  # browserscript.maxTimeout (minutes) is the default timeout value of synthetic-pop-browserscript playback engine
+  maxTimeout: 5
+
+  # Default blocking list. Host names in the property separated by semicolon ";" will be added to deny list.
+  # www.google-analytics.com and googleads.g.doubleclick.net will be blocked by default. 
+  # Allows using wildcards to match the URL to be blocked e.g. *.png or *.s81c.com
+  defaultDenyList: "www.google-analytics.com;googleads.g.doubleclick.net"
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 4 memory: "3Gi", requests cpu: 2 memory: "2Gi"
   resources:
-    limits:
-      cpu: 4
-      memory: "3Gi"
     requests:
       cpu: 2
-      memory: "2Gi"
+      memory: 2Gi
+    limits:
+      cpu: 4
+      memory: 3Gi
 
 # synthetic-pop-ism playback engine
 ism:
@@ -164,19 +173,21 @@ ism:
   # ism.replicas specifies the synthetic-pop-ism pod instance number
   replicas: 1
 
-  # ism.traceLevel is the tracing level, value can be error | warning | info | finest | all
-  traceLevel: "info"
+  # ism.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK
+  traceLevel: "INFO"
+
+  # ism.maxTimeout is the default timeout value of synthetic-pop-ism playback engine
+  maxTimeout: 10s
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 1 memory: "300Mi", requests cpu: 100m memory: "200Mi"
   resources:
-    limits:
-      cpu: 1
-      memory: "300Mi"
     requests:
       cpu: 100m
-      memory: "200Mi"
+      memory: 200Mi
+    limits:
+      cpu: 1
+      memory: 300Mi
 
 # redis
 redis:
@@ -201,14 +212,13 @@ redis:
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## Default limits cpu: 1 memory: "1Gi", requests cpu: 1 memory: "1Gi"
   resources:
-    limits:
-      cpu: 1
-      memory: "1Gi"
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 200m
+      memory: 100Mi
+    limits:
+      cpu: 300m
+      memory: 200Mi
 
 #proxy specifies the proxy configuration for Synthetic PoP to connect to Instana backend server
 proxy:
