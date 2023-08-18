@@ -6,6 +6,8 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
   name: synthetic-pop-ism-playback-engine
   namespace: {{ .Release.Namespace }}
   labels:

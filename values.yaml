@@ -29,9 +29,11 @@ controller:
   instanaSyntheticEndpoint: ""
 
   # controller.capabilities defines the playback capabilities for this PoP
-  # full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction;browserType=firefox,chrome
-  # current release only supports syntheticType=HTTPAction,HTTPScript
-  capabilities: "syntheticType=HTTPAction,HTTPScript;browserType=firefox,chrome"
+  # Full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction;browserType=firefox,chrome
+  # Current release only supports syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript
+  # API Simple test type: HTTPAction, API Script test type: HTTPScript
+  # Browser Script test type: BrowserScript, Webpage Simple test type: WebpageAction and Webpage Script test type: WebpageScript
+  capabilities: "syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript;browserType=firefox,chrome"
 
   # Optionally, controller.clusterName needs to be set with the name of the Kubernetes cluster that is to be displayed in Instana.
   # Set this value when Instana agent is installed to monitor this PoP.
@@ -130,8 +132,7 @@ browserscript:
     pullPolicy: "Always"
 
   # browserscript.enabled specifies whether to deploy the synthetic-pop-browserscript or not
-  # browserscript playback engine is not supported in current release, its value can only be false currently
-  enabled: false
+  enabled: true
 
   # browserscript.replicas specifies the synthetic-pop-browserscript pod instance number
   replicas: 1
