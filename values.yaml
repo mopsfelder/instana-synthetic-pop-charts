@@ -53,10 +53,10 @@ controller:
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   resources:
     requests:
-      cpu: 100m
+      cpu: 200m
       memory: 200Mi
     limits:
-      cpu: 150m
+      cpu: 300m
       memory: 300Mi
 
 # synthetic-pop-http playback engine
