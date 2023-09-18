@@ -40,6 +40,19 @@ spec:
                 operator: In
                 values:
                 - {{ .Values.popArch }}
+                {{- if .Values.controller.nodeSelector.enabled }}
+              - key: {{ .Values.controller.nodeSelector.nodeLabel.key }}
+                operator: In
+                values:
+                  - {{ .Values.controller.nodeSelector.nodeLabel.value }}
+                {{- end }}
+      {{- if .Values.controller.taintSelector.enabled }}
+      tolerations:
+        - key: {{ .Values.controller.taintSelector.nodeTaint.key }}
+          operator: "Equal"
+          value: {{ .Values.controller.taintSelector.nodeTaint.value }}
+          effect: "PreferNoSchedule"
+      {{- end }}
       imagePullSecrets:
         {{- if .Values.downloadKey }}
         - name: "instana-io"

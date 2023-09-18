@@ -27,23 +27,23 @@ for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$
     case $line in
         *"controller"*)
            kubectl exec $line -n $namespace -- printenv | grep -i POP_CONTROLLER_VER  >> version.log 2>&1
-           kubectl cp ${line}:logs ./controller-log -n $namespace >> mountdir.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *"http"*)
            kubectl exec $line -n $namespace -- printenv | grep -i HTTP_ENGINE_VERSION  >> version.log 2>&1
-           kubectl cp ${line}:logs ./http-engine-log -n $namespace >> mountdir.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *"javascript"*)
            kubectl exec $line -n $namespace -- printenv | grep -i JAVASCRIPT_ENGINE_VERSION  >> version.log 2>&1
-           kubectl cp ${line}:logs ./javascript-engine-log -n $namespace >> mountdir.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *"browserscript"*)
            kubectl exec $line -n $namespace -- printenv | grep -i BROWSERSCRIPT_ENGINE_VERSION  >> version.log 2>&1
-           kubectl cp ${line}:logs ./browserscript-engine-log -n $namespace >> mountdir.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *"redis"*)
            kubectl exec $line -n $namespace -- printenv | grep -i REDIS_VER >> version.log 2>&1
-           kubectl cp ${line}:logs ./redis-log -n $namespace >> mountdir.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *)
           ;;

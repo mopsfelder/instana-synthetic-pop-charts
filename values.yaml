@@ -49,6 +49,25 @@ controller:
   # controller.traceLevel is the tracing level, value can be ALL, TRACE, DEBUG, INFO, WARN and ERROR
   traceLevel: "INFO"
 
+  # nodeSelector and taintSelects are used to assign pop controller pod to a particular node to avoid host change for PoP sensor
+  # the host change for PoP sensor can lead to monitoring data loss in the PoP monitoring dashboard
+  # to assign pop controller pod to a particular node
+  # 1. add node label by command "kubectl label nodes <yournode> scheduler=synthetic-pop-controller"
+  # 2. enable nodeSelector by setting controller.nodeSelector.enabled to true
+  # to assign only pop controller pod to a particular node and other pods not to that node
+  # 1. add node taint by command "kubectl taint nodes <yournode> toleration=synthetic-pop-controller:PreferNoSchedule"
+  # 2. enable taintSelector by setting controller.taintSelector.enabled to true
+  nodeSelector:
+    enabled: false
+    nodeLabel:
+      key: "scheduler"
+      value: "synthetic-pop-controller"
+  taintSelector:
+    enabled: false
+    nodeTaint:
+      key: "toleration"
+      value: "synthetic-pop-controller"
+
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   resources:
@@ -58,6 +77,7 @@ controller:
     limits:
       cpu: 300m
       memory: 300Mi
+
 
 # synthetic-pop-http playback engine
 http:
