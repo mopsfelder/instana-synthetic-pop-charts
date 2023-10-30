@@ -6,7 +6,7 @@
 controller:
   image:
     name: "synthetic-pop-controller"
-    tag: "1.259.2"
+    tag: "1.260.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -78,13 +78,12 @@ controller:
       cpu: 300m
       memory: 300Mi
 
-
 # synthetic-pop-http playback engine
 http:
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.259.2"
+    tag: "1.260.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -116,7 +115,7 @@ javascript:
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.259.2"
+    tag: "1.260.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -147,7 +146,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.259.2"
+    tag: "1.260.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -278,6 +277,11 @@ playbackEngineNetworkPolicy:
             except:
               - 10.0.0.0/24
               - 169.254.169.254/32
+
+# support KEDA
+keda: 
+  enabled: false
+  namespace: keda
 
 # Image common path, for instana production, it is "containers.instana.io/synthetic"
 imagePath: "containers.instana.io/synthetic"

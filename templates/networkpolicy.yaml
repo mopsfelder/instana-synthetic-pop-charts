@@ -60,6 +60,11 @@ spec:
       - podSelector:
           matchLabels:
             role: playbackengine
+      {{- if .Values.keda.enabled }}
+      - namespaceSelector:
+          matchLabels:
+            name: {{ .Values.keda.namespace }}
+      {{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
