@@ -278,7 +278,7 @@ playbackEngineNetworkPolicy:
               - 10.0.0.0/24
               - 169.254.169.254/32
 
-# support KEDA
+# support KEDA for auto-scaling horizontally
 keda: 
   enabled: false
   namespace: keda
