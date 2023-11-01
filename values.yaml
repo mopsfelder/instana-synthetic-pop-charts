@@ -146,7 +146,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.260.0"
+    tag: "1.261.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
