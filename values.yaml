@@ -1,12 +1,8 @@
-# IBM Confidential
-# PID 5737-N85, 5900-AG5
-# Copyright IBM Corp. 2023
-#
 # synthetic-pop-controller
 controller:
   image:
     name: "synthetic-pop-controller"
-    tag: "1.260.0"
+    tag: "1.262.3"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -42,9 +38,14 @@ controller:
   # custom tags for this location, format is "tag1=value1;tag2=value2"
   customProperties: ""
 
-  # The thread pool size for publishing result messages into Ingress service in parallel, default is 5;
+  # The max thread pool size for publishing result messages into Ingress service in parallel, default is 5;
   # The value is recommended to set with equal or greater than 5, users can increase this value to accelerate the publishing for high workload, e.g, 10 or 20
   publishAARThreadPoolSize: 5
+
+  # The max thread pool size for scheduling tests in PoP controller, default is 2;
+  # The value is recommended to set with equal or greater than 2.
+  # Users can increase this value when scheduling tests enabled user credentials for high workload, e.g, 10
+  scheduleTestMaxPoolSize: 2
 
   # controller.traceLevel is the tracing level, value can be ALL, TRACE, DEBUG, INFO, WARN and ERROR
   traceLevel: "INFO"
@@ -83,7 +84,7 @@ http:
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.260.0"
+    tag: "1.262.3"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -115,7 +116,7 @@ javascript:
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.260.0"
+    tag: "1.262.3"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -130,6 +131,9 @@ javascript:
 
   # javascript.maxTimeout (minutes) is the default timeout value of synthetic-pop-javascript playback engine
   maxTimeout: 5
+
+  # javascript.maxConcurrentTests is the number how many tests can be executed by javascript playback engine simultaneously at one time
+  maxConcurrentTests: 3
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -146,7 +150,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.261.0"
+    tag: "1.262.4"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -161,6 +165,9 @@ browserscript:
 
   # browserscript.maxTimeout (minutes) is the default timeout value of synthetic-pop-browserscript playback engine
   maxTimeout: 5
+
+  # browserscript.maxConcurrentTests is the number how many tests can be executed by browserscript playback engine simultaneously at one time
+  maxConcurrentTests: 3
 
   # Default blocking list. Host names in the property separated by semicolon ";" will be added to deny list.
   # www.google-analytics.com and googleads.g.doubleclick.net will be blocked by default. 
@@ -213,7 +220,7 @@ ism:
 redis:
   image:
     name: "redis"
-    tag: "1.259.0"
+    tag: "1.262.1"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 

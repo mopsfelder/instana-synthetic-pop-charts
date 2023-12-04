@@ -1,26 +1,58 @@
-#!/bin/bash
-# IBM Confidential
-# PID 5737-N85, 5900-AG5
-# Copyright IBM Corp. 2022
-#
+#!/bin/bash -i
 
 CWD=$(dirname $0)
 [ "${CWD}" = "." ] && CWD=$(pwd -P)
 
-namespace=${2-default}
-
 usage()
 {
-    echo "usage: pdcollect.sh -n <namespace>. By default, namespace is 'default'"
+    echo "usage: pdcollect.sh -n <namespace> -d <log_output_directory>. By default, namespace is 'default', log output directory is /tmp."
 }
 
+type microk8s 2>/dev/null
+if [ $? -eq 0 ] ; then
+   alias kubectl='microk8s kubectl'
+fi   
+
+namespace="default"
+log_dir="/tmp"
+
+while getopts 'n:d:h' opt; do
+  case "$opt" in
+    n)
+      namespace=${OPTARG}
+      ;;
+    d)
+      if [ ! -d "${OPTARG}" ]; then
+         echo "Directory ${OPTARG} does not exist, exit."
+         exit 1
+      fi
+      log_dir=$(cd ${OPTARG}; pwd)
+      if [ ! -d "$log_dir" ]; then
+         echo "Directory $log_dir does not exist, exit."
+         exit 1
+      fi
+      ;;
+    ?|h)
+      echo "usage: pdcollect.sh -n <namespace> -d <log_output_directory>. By default, namespace is 'default', log output directory is /tmp."
+      exit 1
+      ;;
+  esac
+done
+shift "$(($OPTIND -1))"
+
+installed_pop=$(helm list -n $namespace | grep synthetic-pop | wc -l)
+if [ $installed_pop -ne 1 ]; 
+then
+   echo "No Synthetic PoP installed in default namespace."
+   exit 1;
+fi
 
 echo "collecting synthetic pod information and logging files from namespace $namespace" 
 TIMESTAMP="$(date +%Y%m%d%H%M)"
 LOG_FOLDER="syntheticpop_logs_${TIMESTAMP}"  
-mkdir /tmp/${LOG_FOLDER}
+mkdir ${log_dir}/${LOG_FOLDER}
 
-cd /tmp/${LOG_FOLDER}
+cd ${log_dir}/${LOG_FOLDER}
 helm list -n $namespace | grep synthetic-pop >> helm_deploy.log 2>&1
 for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$1'}); do
     kubectl describe po $line -n $namespace >> ${line}_describe.log 2>&1
@@ -51,12 +83,12 @@ for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$
     esac
 done
 
-if [ -d "/tmp/${LOG_FOLDER}" ] && [ -n "$(ls -A "/tmp/${LOG_FOLDER}")" ]; then
-    tar -rf /tmp/${LOG_FOLDER}.tar -C /tmp/${LOG_FOLDER} .
-    gzip /tmp/${LOG_FOLDER}.tar
-    rm -rf /tmp/${LOG_FOLDER}
+if [ -d "${log_dir}/${LOG_FOLDER}" ] && [ -n "$(ls -A "${log_dir}/${LOG_FOLDER}")" ]; then
+    tar -rf ${log_dir}/${LOG_FOLDER}.tar -C ${log_dir}/${LOG_FOLDER} .
+    gzip ${log_dir}/${LOG_FOLDER}.tar
+    rm -rf ${log_dir}/${LOG_FOLDER}
  
-   echo "logging files are packaged successfully, see /tmp/${LOG_FOLDER}.tar.gz"
+   echo "logging files are packaged successfully, see ${log_dir}/${LOG_FOLDER}.tar.gz"
 else
    echo "No logging files. Please check your resources in $namespace namespace"
    exit -1

@@ -1,7 +1,3 @@
-# IBM Confidential
-# PID 5737-N85, 5900-AG5
-# Copyright IBM Corp. 2022
-#
 {{- if .Values.javascript.enabled }}
 ---
 kind: Deployment
@@ -116,7 +112,7 @@ spec:
           value: ""
         # length of sandbox pool, only used in httpscript mode
         - name: SANDBOX_LENGTH
-          value: "3"
+          value: {{ .Values.javascript.maxConcurrentTests | quote }}
         # max of execution time out, used in httpscript mode
         - name: HTTPSCRIPT_TIMEOUT
           value: {{ .Values.javascript.maxTimeout | quote }}
