@@ -2,7 +2,7 @@
 controller:
   image:
     name: "synthetic-pop-controller"
-    tag: "1.262.3"
+    tag: "1.263.1"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -47,6 +47,10 @@ controller:
   # Users can increase this value when scheduling tests enabled user credentials for high workload, e.g, 10
   scheduleTestMaxPoolSize: 2
 
+  # The expiry time in Redis key for user credentials (seconds), default is 60;
+  # For each test run, if user creds are not picked up by playback engines from Redis after expiry time, they will be expired and removed automatically and the test run will also be skipped
+  credExpireTime: 60
+
   # controller.traceLevel is the tracing level, value can be ALL, TRACE, DEBUG, INFO, WARN and ERROR
   traceLevel: "INFO"
 
@@ -84,7 +88,7 @@ http:
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.262.3"
+    tag: "1.263.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -116,7 +120,7 @@ javascript:
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.262.3"
+    tag: "1.263.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -150,7 +154,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.262.4"
+    tag: "1.263.3"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -220,7 +224,7 @@ ism:
 redis:
   image:
     name: "redis"
-    tag: "1.262.1"
+    tag: "1.263.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 

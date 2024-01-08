@@ -161,6 +161,10 @@ spec:
         # The max thread pool size for scheduling tests and querying user credentials, default is 2
         - name: SCHEDULETEST_THREAD_POOL_SIZE
           value: {{ .Values.controller.scheduleTestMaxPoolSize | quote }}
+        - name: CONFIGURATION_QUERY_INTERVAL
+          value: "60"
+        - name: CRED_EXPIRE_TIME
+          value: {{ .Values.controller.credExpireTime | quote }}
         # Protocol for proxy server:  http | socks
         - name: POP_PROXY_PROTOCOL
           value: {{ .Values.proxy.popProxyProtocol | default "" | quote }}
