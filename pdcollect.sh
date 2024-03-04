@@ -8,10 +8,13 @@ usage()
     echo "usage: pdcollect.sh -n <namespace> -d <log_output_directory>. By default, namespace is 'default', log output directory is /tmp."
 }
 
-type microk8s 2>/dev/null
-if [ $? -eq 0 ] ; then
-   alias kubectl='microk8s kubectl'
-fi   
+type kubectl >/dev/null 2>&1
+if [ $? -ne 0 ] ; then 
+   type microk8s 2>/dev/null
+   if [ $? -eq 0 ] ; then
+      alias kubectl='microk8s kubectl'
+   fi   
+fi
 
 namespace="default"
 log_dir="/tmp"

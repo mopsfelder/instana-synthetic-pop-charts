@@ -112,7 +112,7 @@ http:
       memory: 200Mi
     limits:
       cpu: 300m
-      memory: 300Mi
+      memory: 500Mi
 
 
 # synthetic-pop-javascript playback engine
