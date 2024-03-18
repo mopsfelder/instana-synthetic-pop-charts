@@ -113,6 +113,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ include "synthetic-pop.chart" . }}
 release: synthetic-pop
+instana-autotrace: "{{ if .Values.autotraceWebhookEnabled }}true{{ else }}false{{ end }}"
 {{- end -}}
 {{- end -}}
 
