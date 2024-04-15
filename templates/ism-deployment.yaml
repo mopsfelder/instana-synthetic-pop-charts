@@ -50,13 +50,13 @@ spec:
         image: {{ .Values.imagePath }}/{{ .Values.ism.image.name }}:{{ .Values.ism.image.tag }}
         imagePullPolicy: {{ .Values.ism.image.pullPolicy }}
         securityContext:
-            privileged: false
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         resources:
           limits:
             cpu: {{ .Values.ism.resources.limits.cpu }}
@@ -65,21 +65,21 @@ spec:
             cpu: {{ .Values.ism.resources.requests.cpu }}
             memory: {{ .Values.ism.resources.requests.memory }}
         livenessProbe:
-         httpGet:
+          httpGet:
             path: 1.0/synthetics/ism/status
             port: 8080
-         initialDelaySeconds: 30
-         timeoutSeconds: 15
+          initialDelaySeconds: 30
+          timeoutSeconds: 15
         readinessProbe:
-         httpGet:
+          httpGet:
             path: 1.0/synthetics/ism/readiness
             port: 8080
-         initialDelaySeconds: 30
-         timeoutSeconds: 15
+          initialDelaySeconds: 30
+          timeoutSeconds: 15
         ports:
-         - containerPort: 8080
-           name: web
-           protocol: TCP
+          - containerPort: 8080
+            name: web
+            protocol: TCP
         volumeMounts:
           - mountPath: /opt/ibm/microservice/ism-playback/logs
             name: logs

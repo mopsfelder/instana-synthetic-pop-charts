@@ -1,6 +1,7 @@
 ---
-#To use network policies, you must be using a networking solution which supports NetworkPolicy.
+# To use network policies, you must be using a networking solution which supports NetworkPolicy.
 {{- if .Values.networkPolicyEnabled }}
+{{- if .Values.controller.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -19,15 +20,17 @@ spec:
     - from:
       # only allow instana-agent to access
       - podSelector:
-         matchLabels:
-           app.kubernetes.io/name: instana-agent
+          matchLabels:
+            app.kubernetes.io/name: instana-agent
+{{- end }}
 ---
+{{- if .Values.redis.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: synthetic-redis-egress-network-policy
   namespace: {{ .Release.Namespace }}
-#deny all egress traffic
+# deny all egress traffic
 spec:
   podSelector:
     matchLabels:
@@ -40,7 +43,7 @@ kind: NetworkPolicy
 metadata:
   name: synthetic-redis-ingress-network-policy
   namespace: {{ .Release.Namespace }}
-#only allow ingress from pop controller and playback engines
+# only allow ingress from pop controller and playback engines
 spec:
   podSelector:
     matchLabels:
@@ -49,9 +52,11 @@ spec:
     - Ingress
   ingress:
     - from:
-      - podSelector:
+      - namespaceSelector: {}
+        podSelector:
           matchLabels:
             component: synthetic-pop-controller
+    - from:
       - podSelector:
           matchLabels:
             role: playbackengine
@@ -60,15 +65,17 @@ spec:
           matchLabels:
             name: {{ .Values.keda.namespace }}
       {{- end }}
+{{- end }}
 ---
+{{- if or (or .Values.http.enabled .Values.javascript.enabled) (or .Values.browserscript.enabled .Values.ism.enabled) }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: synthetic-playbackengine-network-policy
   namespace: {{ .Release.Namespace }}
-#deny all ingress traffic
-#add egress here to block access to some certain ip or ip range e.g, restrict pod access to the metadata API
-#See also: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+# deny all ingress traffic
+# add egress here to block access to some certain ip or ip range e.g, restrict pod access to the metadata API
+# See also: https://kubernetes.io/docs/concepts/services-networking/network-policies/
 spec:
   podSelector:
     matchLabels:
@@ -77,4 +84,5 @@ spec:
     - Ingress
     - Egress
   {{- include "playback-engine.networkPolicy.egress" . | nindent 2 }}
-{{- end}}
+{{- end }}
+{{- end }}

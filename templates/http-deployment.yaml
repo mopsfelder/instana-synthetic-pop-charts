@@ -65,21 +65,21 @@ spec:
             cpu: {{ .Values.http.resources.requests.cpu }}
             memory: {{ .Values.http.resources.requests.memory }}
         livenessProbe:
-         httpGet:
+          httpGet:
             path: 1.0/synthetics/javascript/status
             port: 8080
-         initialDelaySeconds: 30
-         timeoutSeconds: 15
+          initialDelaySeconds: 30
+          timeoutSeconds: 15
         readinessProbe:
-         httpGet:
+          httpGet:
             path: 1.0/synthetics/javascript/readiness
             port: 8080
-         initialDelaySeconds: 30
-         timeoutSeconds: 15
+          initialDelaySeconds: 30
+          timeoutSeconds: 15
         ports:
-         - containerPort: 8080
-           name: web
-           protocol: TCP
+          - containerPort: 8080
+            name: web
+            protocol: TCP
         volumeMounts:
           - mountPath: /opt/ibm/microservice/javascript-playback/logs
             name: logs

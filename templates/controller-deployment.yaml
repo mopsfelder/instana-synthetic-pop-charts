@@ -1,3 +1,4 @@
+{{- if .Values.controller.enabled }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -109,8 +110,8 @@ spec:
             command:
             - cat
             - /opt/ibm/apm/pop/controller/logs/pop.readiness
-          initialDelaySeconds: 60
-          periodSeconds: 10          
+          initialDelaySeconds: 20
+          periodSeconds: 10
         env:
         - name: LOCATION
           value: {{ .Values.controller.location | quote }}
@@ -182,6 +183,8 @@ spec:
           value: {{ .Release.Namespace }}
         - name: CLUSTERNAME
           value: {{ .Values.controller.clusterName | quote }}
+        - name: REDIS_NAMESPACE
+          value: {{ .Values.controller.redisNamespace | quote }}
       volumes:
       - name: logs
         emptyDir: {}
@@ -225,3 +228,4 @@ spec:
           secretName: {{ template "proxyUserPass.secretName" . }}
           optional: false
       {{- end }}
+{{- end }}

@@ -1,3 +1,4 @@
+{{- if .Values.redis.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -16,6 +17,8 @@ spec:
       protocol: TCP
   selector:
     app: redis
+{{- end }}
+{{- if .Values.controller.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -34,3 +37,4 @@ spec:
       protocol: TCP
   selector:
     app.kubernetes.io/name: controller
+{{- end }}

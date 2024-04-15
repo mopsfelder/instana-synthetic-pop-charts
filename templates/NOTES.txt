@@ -2,6 +2,7 @@ CHART NAME: {{ .Chart.Name }}
 CHART VERSION: {{ .Chart.Version }}
 APP VERSION: {{ .Chart.AppVersion }}
 
+{{- if .Values.controller.enabled -}}
 {{/* instanaKey should not empty */}}
 {{- if and (empty .Values.controller.instanaKey) (empty .Values.controller.instanaKeySecret) -}}
   {{- $errorInstana := "\ninstanaKey ERROR: Your must provide instanaKey." -}}
@@ -22,10 +23,11 @@ APP VERSION: {{ .Chart.AppVersion }}
   {{- $errorLocation = print $errorLocation "\n    'controller.location' must not be empty, please add '--set controller.location=<Location>' to the command." -}}
   {{- printf $errorLocation | fail -}}
 {{- end -}}
+{{- end -}}
 
 {{/* downloadKey should not be empty */}}
 {{- if .Values.imagePath | hasPrefix "containers.instana.io" -}}
-{{- if and  (and (empty .Values.downloadKey) (empty .Values.downloadSecret)) (eq .Values.downloadSecret "instana-io") -}}
+{{- if and (and (empty .Values.downloadKey) (empty .Values.downloadSecret)) (eq .Values.downloadSecret "instana-io") -}}
   {{- $errorSecret := "\ndownloadKey ERROR: You must provide downloadKey." -}}
   {{- $errorSecret = print $errorSecret "\n    'downloadKey' and 'downloadSecret' must not be empty, please add '--set downloadKey=<downloadKey>' or '--set downloadSecret=<downloadKeySecret>' to the command." -}}
   {{- printf $errorSecret | fail -}}
@@ -38,7 +40,6 @@ APP VERSION: {{ .Chart.AppVersion }}
   {{- $errorString := "\nPASSWORDS ERROR: You must provide redis passwords when install or update." -}}
   {{- $errorString = print $errorString "\n    'redis.password' and 'redis.passwordSecret' must not be empty, please add '--set redis.password=<RedisPassword>' or '--set redis.passwordSecret=<SecretName>' to the command." -}}
   {{- printf $errorString | fail -}}
-{{- end -}}
 {{- end -}}
 
 {{/* Check redis password length should >= 10 */}}
@@ -63,5 +64,6 @@ APP VERSION: {{ .Chart.AppVersion }}
 {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace .Values.redis.tls.secretName).data -}}
 {{- if not $existingSecret -}}
   {{- printf "\nsecret Not Exist: provided secret %s does not exist" .Values.redis.tls.secretName | fail -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}

@@ -1,10 +1,15 @@
 # synthetic-pop-controller
 controller:
+  # controller.enabled specifies whether to deploy controller pod, default is true.
+  enabled: true
   image:
     name: "synthetic-pop-controller"
-    tag: "1.269.0"
+    tag: "1.270.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
+
+  # controller.redisNamespace specifies the redis namespace if redis is deployed in a different namespace, default is ""
+  redisNamespace: ""
 
   # Required, controller.location is the PoP configuration,  format: "label; displayLabel; country; city; latitude; longitude; description"
   # label is part of the location identifier, it can not be updated after PoP is deployment, but displayLabel can be changed freely
@@ -85,15 +90,14 @@ controller:
 
 # synthetic-pop-http playback engine
 http:
+  # http.enabled specifies whether to deploy the synthetic-pop-http or not
+  enabled: true
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.269.0"
+    tag: "1.270.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
-
-  # http.enabled specifies whether to deploy the synthetic-pop-http or not
-  enabled: true
 
   # http.replicas specifies the synthetic-pop-http pod instance number
   replicas: 1
@@ -117,15 +121,14 @@ http:
 
 # synthetic-pop-javascript playback engine
 javascript:
+  # javascript.enabled specifies whether to deploy the synthetic-pop-javascript or not
+  enabled: true
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.269.0"
+    tag: "1.270.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
-
-  # javascript.enabled specifies whether to deploy the synthetic-pop-javascript or not
-  enabled: true
 
   # javascript.replicas specifies the synthetic-pop-javascript pod instance number
   replicas: 1
@@ -151,15 +154,14 @@ javascript:
 
 # synthetic-pop-browserscript  playback engine
 browserscript:
+  # browserscript.enabled specifies whether to deploy the synthetic-pop-browserscript or not
+  enabled: true
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.269.0"
+    tag: "1.270.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
-
-  # browserscript.enabled specifies whether to deploy the synthetic-pop-browserscript or not
-  enabled: true
 
   # browserscript.replicas specifies the synthetic-pop-browserscript pod instance number
   replicas: 1
@@ -190,16 +192,15 @@ browserscript:
 
 # synthetic-pop-ism playback engine
 ism:
+  # ism.enabled specifies whether to deploy the synthetic-pop-ism or not
+  # ism playback engine is not supported in current release, its value can only be false currently
+  enabled: false
   image:
     name: "synthetic-playback-ism"
     # image.tag is the tag name of the container image;
     tag: "latest"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
-
-  # ism.enabled specifies whether to deploy the synthetic-pop-ism or not
-  # ism playback engine is not supported in current release, its value can only be false currently
-  enabled: false
 
   # ism.replicas specifies the synthetic-pop-ism pod instance number
   replicas: 1
@@ -222,9 +223,11 @@ ism:
 
 # redis
 redis:
+  # redis.enabled specifies whether to deploy redis pod, default is true.
+  enabled: true
   image:
     name: "redis"
-    tag: "1.267.1"
+    tag: "1.270.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
