@@ -44,7 +44,7 @@ done
 shift "$(($OPTIND -1))"
 
 installed_pop=$(helm list -n $namespace | grep synthetic-pop | wc -l)
-if [ $installed_pop -ne 1 ]; 
+if [ $installed_pop -le 0 ]; 
 then
    echo "No Synthetic PoP installed in default namespace."
    exit 1;
@@ -74,6 +74,10 @@ for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$
            ;;
         *"browserscript"*)
            kubectl exec $line -n $namespace -- printenv | grep -i BROWSERSCRIPT_ENGINE_VERSION  >> version.log 2>&1
+           kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
+           ;;
+         *"ism"*)
+           kubectl exec $line -n $namespace -- printenv | grep -i ISM_ENGINE_VERSION  >> version.log 2>&1
            kubectl cp ${line}:logs ./${line}_log -n $namespace >> mountdir.log 2>&1
            ;;
         *"redis"*)

@@ -133,6 +133,8 @@ spec:
           value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=BrowserScriptPlaybackConfigQueue&AARQueue=AARQueue"
         - name: DNSACTION_PLAYBACK_URL
           value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=ISMPlaybackConfigQueue&AARQueue=AARQueue"
+        - name: SSLCERTIFICATE_PLAYBACK_URL
+          value: "redis://synthetic-pop-redis:6378/0?ConfigurationQueue=ISMPlaybackConfigQueue&AARQueue=AARQueue"
         - name: TLS_ENABLED
           value: {{ .Values.redis.tls.enabled | default false | quote }}
         {{- if .Values.redis.tls.enabled }}

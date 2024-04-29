@@ -116,7 +116,10 @@ spec:
           value: "3"
         # timeout for DNSAction, default is 10 seconds
         - name: DNSACTION_TIMEOUT
-          value: {{ .Values.ism.maxTimeout | quote }}
+          value: {{ .Values.ism.maxTimeout.DNSAction | quote }}
+        # timeout for SSLCertificate, default is 30 seconds
+        - name: SSLCERTIFICATE_TIMEOUT
+          value: {{ .Values.ism.maxTimeout.SSLCertificate | quote }}
         # concurrency request number, default is 500
         - name: CONCURRENCY_REQUESTS
           value: "500"

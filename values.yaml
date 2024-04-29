@@ -4,7 +4,7 @@ controller:
   enabled: true
   image:
     name: "synthetic-pop-controller"
-    tag: "1.270.1"
+    tag: "1.271.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -30,7 +30,7 @@ controller:
   instanaSyntheticEndpoint: ""
 
   # controller.capabilities defines the playback capabilities for this PoP
-  # Full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction;browserType=firefox,chrome
+  # Full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction,SSLCertificate;browserType=firefox,chrome
   # Current release only supports syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript
   # API Simple test type: HTTPAction, API Script test type: HTTPScript
   # Browser Script test type: BrowserScript, Webpage Simple test type: WebpageAction and Webpage Script test type: WebpageScript
@@ -95,7 +95,7 @@ http:
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.270.1"
+    tag: "1.271.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -126,7 +126,7 @@ javascript:
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.270.1"
+    tag: "1.271.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -159,7 +159,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.270.2"
+    tag: "1.271.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -198,7 +198,7 @@ ism:
   image:
     name: "synthetic-playback-ism"
     # image.tag is the tag name of the container image;
-    tag: "latest"
+    tag: "1.271.3"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -208,8 +208,10 @@ ism:
   # ism.traceLevel is the tracing level, value can be ALL|TRACE|DEBUG|INFO|WARN|ERROR|FATAL|MARK
   traceLevel: "INFO"
 
-  # ism.maxTimeout is the default timeout value of synthetic-pop-ism playback engine
-  maxTimeout: 10s
+  # ism.maxTimeout is the default timeout value for different test type in synthetic-pop-ism playback engine
+  maxTimeout:
+    DNSAction: 10s
+    SSLCertificate: 30s
 
   ## Default Container resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
