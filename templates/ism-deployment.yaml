@@ -125,7 +125,7 @@ spec:
           value: "500"
         # Loglevel: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, MARK
         - name: LOGLEVEL
-          value: {{ .Values.ism.traceLevel | default "info"	| quote }}
+          value: {{ .Values.ism.traceLevel | default "INFO"	| quote }}
       volumes:
       - name: logs
         emptyDir: {}

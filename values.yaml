@@ -4,7 +4,7 @@ controller:
   enabled: true
   image:
     name: "synthetic-pop-controller"
-    tag: "1.271.0"
+    tag: "1.273.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -19,7 +19,6 @@ controller:
   # Required, controller.instanaKey is Instana agent key, the key can be found by clicking on Deploy a PoP within the Instana Synthetic Monitoring user interface page.
   # If there are multiple backends and each backend requires different key, use semicolon to separate multiple keys, e.g. "anAgentKey;anotherAgentKey"
   # Either instanaKey or instanaKeySecret must be provided
-  # Instana agent key string
   instanaKey: ""
   # The name of secret which stores the Instana agent key string, the secret must have a field called "instana-key"
   instanaKeySecret: ""
@@ -31,10 +30,10 @@ controller:
 
   # controller.capabilities defines the playback capabilities for this PoP
   # Full capabilities: syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,DNSAction,SSLCertificate;browserType=firefox,chrome
-  # Current release only supports syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript
+  # Current release only supports syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,SSLCertificate
   # API Simple test type: HTTPAction, API Script test type: HTTPScript
   # Browser Script test type: BrowserScript, Webpage Simple test type: WebpageAction and Webpage Script test type: WebpageScript
-  capabilities: "syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript;browserType=firefox,chrome"
+  capabilities: "syntheticType=WebpageAction,WebpageScript,HTTPAction,HTTPScript,BrowserScript,SSLCertificate;browserType=firefox,chrome"
 
   # Optionally, controller.clusterName needs to be set with the name of the Kubernetes cluster that is to be displayed in Instana.
   # Set this value when Instana agent is installed to monitor this PoP.
@@ -95,7 +94,7 @@ http:
   image:
     name: "synthetic-playback-http"
     # tag is the tag name of the container image
-    tag: "1.271.0"
+    tag: "1.273.0"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -126,7 +125,7 @@ javascript:
   image:
     name: "synthetic-playback-javascript"
     # image.tag is the tag name of the container image
-    tag: "1.271.0"
+    tag: "1.273.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -159,7 +158,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.271.0"
+    tag: "1.273.1"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -193,12 +192,11 @@ browserscript:
 # synthetic-pop-ism playback engine
 ism:
   # ism.enabled specifies whether to deploy the synthetic-pop-ism or not
-  # ism playback engine is not supported in current release, its value can only be false currently
-  enabled: false
+  enabled: true
   image:
     name: "synthetic-playback-ism"
     # image.tag is the tag name of the container image;
-    tag: "1.271.3"
+    tag: "1.273.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
@@ -217,11 +215,11 @@ ism:
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   resources:
     requests:
-      cpu: 100m
+      cpu: 200m
       memory: 200Mi
     limits:
-      cpu: 1
-      memory: 300Mi
+      cpu: 300m
+      memory: 500Mi
 
 # redis
 redis:
@@ -229,7 +227,7 @@ redis:
   enabled: true
   image:
     name: "redis"
-    tag: "1.270.1"
+    tag: "1.273.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
