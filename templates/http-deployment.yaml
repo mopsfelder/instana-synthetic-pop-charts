@@ -50,13 +50,14 @@ spec:
         image: {{ .Values.imagePath }}/{{ .Values.http.image.name }}:{{ .Values.http.image.tag }}
         imagePullPolicy: {{ .Values.http.image.pullPolicy }}
         securityContext:
-            privileged: false
-            readOnlyRootFilesystem: true
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsGroup: 20001
+          capabilities:
+            drop:
+              - ALL
         resources:
           limits:
             cpu: {{ .Values.http.resources.limits.cpu }}
