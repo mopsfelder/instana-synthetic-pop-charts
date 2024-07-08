@@ -81,7 +81,7 @@ controller:
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   resources:
     requests:
-      cpu: 200m
+      cpu: 100m
       memory: 200Mi
     limits:
       cpu: 300m
@@ -236,6 +236,9 @@ redis:
   password: ""
   # The name of secret which stores Redis password string, the secret must have a field called "redis-password"
   passwordSecret: ""
+
+  # Redis log level from high to low: DEBUG, NOTICE, VERBOSE, WARNING
+  traceLevel: "NOTICE"
 
   tls:
     # To enable redis TLS or not

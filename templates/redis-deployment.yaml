@@ -48,6 +48,8 @@ spec:
             drop:
               - ALL
         volumeMounts:
+          - mountPath: /tmp
+            name: tmp
           {{- if .Values.redis.tls.enabled }}
           - name: tls
             mountPath: {{ include "tls.certPath" . | quote }}
@@ -69,6 +71,8 @@ spec:
         {{- end }}
         - name: REDIS_PASSWORD
           value: ""
+        - name: LOGLEVEL
+          value: {{ .Values.redis.traceLevel | default "NOTICE"	| quote }}
         ports:
         - containerPort: 6379
         resources:
@@ -101,6 +105,8 @@ spec:
           successThreshold: 1
           failureThreshold: 3
       volumes:
+      - name: tmp
+        emptyDir: {}
       {{- if .Values.redis.tls.enabled }}
       - name: tls
         secret:

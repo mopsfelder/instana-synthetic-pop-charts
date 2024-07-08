@@ -56,7 +56,10 @@ LOG_FOLDER="syntheticpop_logs_${TIMESTAMP}"
 mkdir ${log_dir}/${LOG_FOLDER}
 
 cd ${log_dir}/${LOG_FOLDER}
-helm list -n $namespace | grep synthetic-pop >> helm_deploy.log 2>&1
+
+helm list -n $namespace >> helm_list.log 2>&1
+kubectl get pod -n $namespace -o wide >> pod_list.log 2>&1
+
 for line in $(kubectl get po -n $namespace | grep 'synthetic-pop' | awk {'print$1'}); do
     kubectl describe po $line -n $namespace >> ${line}_describe.log 2>&1
     case $line in

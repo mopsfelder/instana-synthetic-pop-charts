@@ -6,6 +6,7 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
   name: synthetic-pop-javascript-playback-engine
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "synthetic-pop.commonLabels" . | nindent 4 }}
     app: synthetic-pop
