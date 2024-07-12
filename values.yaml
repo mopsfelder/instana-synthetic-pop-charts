@@ -1,11 +1,11 @@
 # synthetic-pop-controller
 controller:
-  # controller.enabled specifies whether to deploy controller pod, default is true.
+  # controller.enabled specifies whether to deploy controller pod, default is true
   enabled: true
   image:
     name: "synthetic-pop-controller"
     tag: "1.277.1"
-    # image.pullPolicy specifies when to pull the image.
+    # image.pullPolicy specifies when to pull the image
     pullPolicy: "Always"
 
   # controller.redisNamespace specifies the redis namespace if redis is deployed in a different namespace, default is ""
