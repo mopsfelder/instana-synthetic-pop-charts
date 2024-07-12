@@ -4,7 +4,7 @@ controller:
   enabled: true
   image:
     name: "synthetic-pop-controller"
-    tag: "1.277.0"
+    tag: "1.277.1"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
