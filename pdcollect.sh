@@ -46,7 +46,7 @@ shift "$(($OPTIND -1))"
 installed_pop=$(helm list -n $namespace | grep synthetic-pop | wc -l)
 if [ $installed_pop -le 0 ]; 
 then
-   echo "No Synthetic PoP installed in default namespace."
+   echo "No Synthetic PoP installed in $namespace namespace."
    exit 1;
 fi
 
