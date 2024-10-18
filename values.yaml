@@ -4,7 +4,7 @@ controller:
   enabled: true
   image:
     name: "synthetic-pop-controller"
-    tag: "1.278.0"
+    tag: "1.284.0"
     # image.pullPolicy specifies when to pull the image
     pullPolicy: "Always"
 
@@ -158,7 +158,7 @@ browserscript:
   image:
     name: "synthetic-playback-browserscript"
     # image.tag is the tag name of the container image;
-    tag: "1.279.0"
+    tag: "1.284.2"
     # image.pullPolicy specifies when to pull the image.
     pullPolicy: "Always"
 
@@ -227,7 +227,7 @@ redis:
   enabled: true
   image:
     name: "redis"
-    tag: "1.279.0"
+    tag: "1.284.0"
     # image.pullPolicy specifies when to pull the image container.
     pullPolicy: "Always"
 
