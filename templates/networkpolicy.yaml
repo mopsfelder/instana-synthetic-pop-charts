@@ -7,13 +7,14 @@ kind: NetworkPolicy
 metadata:
   name: synthetic-pop-controller-network-policy
   namespace: {{ .Release.Namespace }}
-# only allow ingress traffic from instana-agent
+# only allow ingress traffic from instana-agent and egress towards redis pods
 spec:
   podSelector:
     matchLabels:
       component: synthetic-pop-controller
   policyTypes:
     - Ingress
+    - Egress
   ingress:
     - ports:
       - port: 8443
@@ -22,6 +23,17 @@ spec:
       - podSelector:
           matchLabels:
             app.kubernetes.io/name: instana-agent
+  egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app: redis
+        namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: {{ .Values.controller.redisNamespace }}
 {{- end }}
 ---
 {{- if .Values.redis.enabled }}
